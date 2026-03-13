@@ -298,6 +298,100 @@ class SummariesService:
             ),
         )
 
+    def _merge_activity_by_date(
+        self,
+        db_session: DbSession,
+        user_id: UUID,
+        results: list[dict],
+    ) -> list[dict]:
+        """Merge activity data from multiple sources per date.
+
+        When different devices report different metrics (e.g. watch sends HR,
+        phone sends steps), merge them into a single entry per date.
+        Uses provider/device priority to pick source metadata.
+        """
+        if not results:
+            return results
+
+        # Group by date
+        by_date: dict[date, list[dict]] = {}
+        for result in results:
+            dt = result["activity_date"]
+            if dt not in by_date:
+                by_date[dt] = []
+            by_date[dt].append(result)
+
+        # Get priority ordering for picking best source metadata
+        provider_order = ProviderPriorityRepository(ProviderPriority).get_priority_order(db_session)
+        device_type_order = DeviceTypePriorityRepository().get_priority_order(db_session)
+
+        merged = []
+        for dt, entries in by_date.items():
+            if len(entries) == 1:
+                merged.append(entries[0])
+                continue
+
+            # Merge: sum additive fields, pick best for HR/non-additive
+            combined: dict = {
+                "activity_date": dt,
+                "steps_sum": 0,
+                "active_energy_sum": 0.0,
+                "basal_energy_sum": 0.0,
+                "hr_avg": None,
+                "hr_max": None,
+                "hr_min": None,
+                "distance_sum": None,
+                "flights_climbed_sum": None,
+            }
+
+            for entry in entries:
+                # Sum additive metrics
+                combined["steps_sum"] += entry.get("steps_sum") or 0
+                combined["active_energy_sum"] += entry.get("active_energy_sum") or 0.0
+                combined["basal_energy_sum"] += entry.get("basal_energy_sum") or 0.0
+
+                # HR: pick non-null values, or wider range
+                if entry.get("hr_avg") is not None:
+                    if combined["hr_avg"] is None:
+                        combined["hr_avg"] = entry["hr_avg"]
+                        combined["hr_max"] = entry["hr_max"]
+                        combined["hr_min"] = entry["hr_min"]
+                    else:
+                        # Multiple HR sources: pick wider range
+                        combined["hr_max"] = max(combined["hr_max"] or 0, entry["hr_max"] or 0)
+                        combined["hr_min"] = min(combined["hr_min"] or 999, entry["hr_min"] or 999)
+
+                # Distance/flights: sum if both present
+                if entry.get("distance_sum") is not None:
+                    combined["distance_sum"] = (combined["distance_sum"] or 0) + entry["distance_sum"]
+                if entry.get("flights_climbed_sum") is not None:
+                    combined["flights_climbed_sum"] = (combined["flights_climbed_sum"] or 0) + entry[
+                        "flights_climbed_sum"
+                    ]
+
+            # Pick best source metadata by priority
+            def sort_key(e: dict) -> tuple[int, int, str]:
+                source = e.get("source", "unknown")
+                try:
+                    provider = ProviderName(source)
+                except ValueError:
+                    provider = ProviderName.UNKNOWN
+                provider_priority = provider_order.get(provider, 99)
+                device_model = e.get("device_model")
+                device_type_priority = 99
+                if device_model:
+                    device_type_p = infer_device_type_from_model(device_model)
+                    device_type_priority = device_type_order.get(device_type_p, 99)
+                return (provider_priority, device_type_priority, device_model or "")
+
+            best_source = sorted(entries, key=sort_key)[0]
+            combined["source"] = best_source["source"]
+            combined["device_model"] = best_source.get("device_model")
+
+            merged.append(combined)
+
+        return merged
+
     @handle_exceptions
     async def get_activity_summaries(
         self,
@@ -327,30 +421,29 @@ class SummariesService:
         # Get aggregated data from time-series repository
         results = self.data_point_repo.get_daily_activity_aggregates(db_session, user_id, start_date, end_date)
 
-        # Filter by priority to get best source per date
-        results = self._filter_by_priority(db_session, user_id, results, date_key="activity_date")
+        # Merge data from multiple sources per date (e.g. watch HR + phone steps),
+        # then use priority to pick the best source for metadata.
+        results = self._merge_activity_by_date(db_session, user_id, results)
 
         # Get workout aggregates (elevation, distance, energy from workouts)
         workout_aggregates = self.event_record_repo.get_daily_workout_aggregates(
             db_session, user_id, start_date, end_date
         )
 
-        # Build lookup dict for workout data by (date, provider, device)
-        workout_lookup: dict[tuple, dict] = {}
+        # Build lookup dict for workout data by date (merge across sources)
+        workout_lookup: dict[date, dict] = {}
         for wa in workout_aggregates:
-            key = (wa["workout_date"], wa["source"], wa.get("device_model"))
-            workout_lookup[key] = wa
+            workout_lookup[wa["workout_date"]] = wa
 
         # Get active/sedentary minutes from step data
         activity_minutes = self.data_point_repo.get_daily_active_minutes(
             db_session, user_id, start_date, end_date, active_threshold=ACTIVE_STEPS_THRESHOLD
         )
 
-        # Build lookup for activity minutes
-        activity_lookup: dict[tuple, ActiveMinutesResult] = {}
+        # Build lookup for activity minutes by date (merge across sources)
+        activity_lookup: dict[date, ActiveMinutesResult] = {}
         for am in activity_minutes:
-            key = (am["activity_date"], am["source"], am.get("device_model"))
-            activity_lookup[key] = am
+            activity_lookup[am["activity_date"]] = am
 
         # Get intensity minutes from HR data
         # Calculate HR zone thresholds based on user's max HR (220 - age)
@@ -367,11 +460,10 @@ class SummariesService:
             vigorous_max=hr_zones["vigorous_max"],
         )
 
-        # Build lookup for intensity minutes
-        intensity_lookup: dict[tuple, IntensityMinutesResult] = {}
+        # Build lookup for intensity minutes by date (merge across sources)
+        intensity_lookup: dict[date, IntensityMinutesResult] = {}
         for im in intensity_minutes_data:
-            key = (im["activity_date"], im["source"], im.get("device_model"))
-            intensity_lookup[key] = im
+            intensity_lookup[im["activity_date"]] = im
 
         # Sort results based on sort_order (default ascending from DB)
         if sort_order == "desc":
@@ -443,11 +535,11 @@ class SummariesService:
         # Transform to schema
         data = []
         for result in results:
-            # Look up workout data for this day/provider/device
-            result_key = (result["activity_date"], result["source"], result.get("device_model"))
-            workout_data = workout_lookup.get(result_key, {})
-            activity_data = activity_lookup.get(result_key, {})
-            intensity_data = intensity_lookup.get(result_key, {})
+            # Look up workout/activity/intensity data for this day
+            activity_date = result["activity_date"]
+            workout_data = workout_lookup.get(activity_date, {})
+            activity_data = activity_lookup.get(activity_date, {})
+            intensity_data = intensity_lookup.get(activity_date, {})
 
             # Get elevation from workouts
             elevation_meters = workout_data.get("elevation_meters")
