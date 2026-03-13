@@ -24,7 +24,7 @@
 
 ### Скрыта кнопка "Copy Pairing Link"
 - **Файлы:** `frontend/src/routes/_authenticated/users/$userId.tsx`, `frontend/src/components/user/profile-section.tsx`, `frontend/src/components/users/users-table.tsx`
-- Кнопки "Copy Pairing Link" закомментированы — страница pairing требует авторизации, поэтому ссылка бесполезна при открытии с телефона
+- Закомментированы кнопки, связанные функции (`handleCopyPairLink`), стейты (`copied`, `copiedPairLink`) и импорты (`LinkIcon`) — страница pairing требует авторизации, поэтому ссылка бесполезна при открытии с телефона
 
 ## Конфигурация (локальная, не закоммичена)
 
