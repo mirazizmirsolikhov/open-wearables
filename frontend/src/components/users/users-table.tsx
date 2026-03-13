@@ -19,7 +19,7 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronsUpDown,
-  Link as LinkIcon,
+  // Link as LinkIcon,
   Loader2,
   Upload,
 } from 'lucide-react';
@@ -80,7 +80,7 @@ export function UsersTable({
   const [globalFilter, setGlobalFilter] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [copiedPairLink, setCopiedPairLink] = useState<string | null>(null);
+  // const [copiedPairLink, setCopiedPairLink] = useState<string | null>(null);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const { handleUpload, uploadingUserId } = useAppleXmlUpload();
@@ -130,17 +130,17 @@ export function UsersTable({
     }
   };
 
-  const handleCopyPairLink = async (userId: string) => {
-    const pairLink = `${window.location.origin}/users/${userId}/pair`;
-    const success = await copyToClipboard(
-      pairLink,
-      'Pairing link copied to clipboard'
-    );
-    if (success) {
-      setCopiedPairLink(userId);
-      setTimeout(() => setCopiedPairLink(null), 2000);
-    }
-  };
+  // const handleCopyPairLink = async (userId: string) => {
+  //   const pairLink = `${window.location.origin}/users/${userId}/pair`;
+  //   const success = await copyToClipboard(
+  //     pairLink,
+  //     'Pairing link copied to clipboard'
+  //   );
+  //   if (success) {
+  //     setCopiedPairLink(userId);
+  //     setTimeout(() => setCopiedPairLink(null), 2000);
+  //   }
+  // };
 
   const handleUploadClick = (userId: string) => {
     fileInputRefs.current[userId]?.click();
@@ -311,7 +311,7 @@ export function UsersTable({
             onChange={(e) => handleUpload(row.original.id, e)}
             className="hidden"
           />
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             onClick={() => handleCopyPairLink(row.original.id)}
@@ -322,7 +322,7 @@ export function UsersTable({
             ) : (
               <LinkIcon className="h-4 w-4" />
             )}
-          </Button>
+          </Button> */}
           <Button
             variant="destructive-outline"
             size="icon"

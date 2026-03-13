@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link as LinkIcon, Check, Copy, Pencil } from 'lucide-react';
+import { /* Link as LinkIcon, */ Check, Copy, Pencil } from 'lucide-react';
 import { useUserConnections } from '@/hooks/api/use-health';
 import { useUser, useUpdateUser } from '@/hooks/api/use-users';
 import { Input } from '@/components/ui/input';
@@ -27,7 +27,7 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
     useUserConnections(userId);
   const { mutate: updateUser, isPending: isUpdating } = useUpdateUser();
 
-  const [copied, setCopied] = useState(false);
+  // const [copied, setCopied] = useState(false);
   const [copiedUserId, setCopiedUserId] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -59,17 +59,17 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
     }
   };
 
-  const handleCopyPairLink = async () => {
-    const pairLink = `${window.location.origin}/users/${userId}/pair`;
-    const success = await copyToClipboard(
-      pairLink,
-      'Pairing link copied to clipboard'
-    );
-    if (success) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+  // const handleCopyPairLink = async () => {
+  //   const pairLink = `${window.location.origin}/users/${userId}/pair`;
+  //   const success = await copyToClipboard(
+  //     pairLink,
+  //     'Pairing link copied to clipboard'
+  //   );
+  //   if (success) {
+  //     setCopied(true);
+  //     setTimeout(() => setCopied(false), 2000);
+  //   }
+  // };
 
   const handleEditSubmit = () => {
     updateUser(
@@ -199,7 +199,7 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
             ) : (
               <div className="text-center py-8">
                 <p className="text-zinc-500 mb-4">No providers connected yet</p>
-                <Button variant="outline" onClick={handleCopyPairLink}>
+                {/* <Button variant="outline" onClick={handleCopyPairLink}>
                   {copied ? (
                     <>
                       <Check className="h-4 w-4 text-emerald-500" />
@@ -211,7 +211,7 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
                       Copy Pairing Link
                     </>
                   )}
-                </Button>
+                </Button> */}
               </div>
             )}
           </div>

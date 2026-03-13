@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState, useRef, useMemo, type ReactNode } from 'react';
 import {
   ArrowLeft,
-  Link as LinkIcon,
+  // Link as LinkIcon,
   Trash2,
   Check,
   Upload,
@@ -91,7 +91,7 @@ function UserDetailPage() {
     data: invitationCodeData,
     isPending: isGeneratingCode,
   } = useGenerateInvitationCode();
-  const [copied, setCopied] = useState(false);
+  // const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [isCodeDialogOpen, setIsCodeDialogOpen] = useState(false);
@@ -154,17 +154,17 @@ function UserDetailPage() {
     [userId, workoutDateRange, activityDateRange, sleepDateRange]
   );
 
-  const handleCopyPairLink = async () => {
-    const pairLink = `${window.location.origin}/users/${userId}/pair`;
-    const success = await copyToClipboard(
-      pairLink,
-      'Pairing link copied to clipboard'
-    );
-    if (success) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+  // const handleCopyPairLink = async () => {
+  //   const pairLink = `${window.location.origin}/users/${userId}/pair`;
+  //   const success = await copyToClipboard(
+  //     pairLink,
+  //     'Pairing link copied to clipboard'
+  //   );
+  //   if (success) {
+  //     setCopied(true);
+  //     setTimeout(() => setCopied(false), 2000);
+  //   }
+  // };
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -266,7 +266,7 @@ function UserDetailPage() {
             onChange={(e) => handleUpload(userId, e)}
             className="hidden"
           />
-          <Button variant="secondary" onClick={handleCopyPairLink}>
+          {/* <Button variant="secondary" onClick={handleCopyPairLink}>
             {copied ? (
               <>
                 <Check className="h-4 w-4 text-emerald-600" />
@@ -278,7 +278,7 @@ function UserDetailPage() {
                 Copy Pairing Link
               </>
             )}
-          </Button>
+          </Button> */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
