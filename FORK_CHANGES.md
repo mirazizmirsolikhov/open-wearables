@@ -26,6 +26,10 @@
 - **Файлы:** `frontend/src/routes/_authenticated/users/$userId.tsx`, `frontend/src/components/user/profile-section.tsx`, `frontend/src/components/users/users-table.tsx`
 - Закомментированы кнопки, связанные функции (`handleCopyPairLink`), стейты (`copied`, `copiedPairLink`) и импорты (`LinkIcon`) — страница pairing требует авторизации, поэтому ссылка бесполезна при открытии с телефона
 
+### Скрыта кнопка "Upload Apple Health XML"
+- **Файлы:** `frontend/src/routes/_authenticated/users/$userId.tsx`, `frontend/src/components/users/users-table.tsx`
+- Закомментированы кнопки загрузки Apple Health XML, связанные функции, импорты и стейты — неактуально для Samsung
+
 ## Конфигурация (локальная, не закоммичена)
 
 ### `backend/config/.env`

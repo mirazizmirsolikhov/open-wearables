@@ -20,8 +20,8 @@ import {
   ChevronUp,
   ChevronsUpDown,
   // Link as LinkIcon,
-  Loader2,
-  Upload,
+  // Loader2,
+  // Upload,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { UserRead, UserQueryParams } from '@/lib/api/types';
@@ -29,7 +29,7 @@ import { copyToClipboard } from '@/lib/utils/clipboard';
 import { truncateId } from '@/lib/utils/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAppleXmlUpload } from '@/hooks/api/use-users';
+// import { useAppleXmlUpload } from '@/hooks/api/use-users';
 import {
   Pagination,
   PaginationContent,
@@ -81,9 +81,9 @@ export function UsersTable({
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   // const [copiedPairLink, setCopiedPairLink] = useState<string | null>(null);
-  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  // const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  const { handleUpload, uploadingUserId } = useAppleXmlUpload();
+  // const { handleUpload, uploadingUserId } = useAppleXmlUpload();
 
   const onQueryChangeRef = useRef(onQueryChange);
   useEffect(() => {
@@ -142,9 +142,9 @@ export function UsersTable({
   //   }
   // };
 
-  const handleUploadClick = (userId: string) => {
-    fileInputRefs.current[userId]?.click();
-  };
+  // const handleUploadClick = (userId: string) => {
+  //   fileInputRefs.current[userId]?.click();
+  // };
 
   const SortableHeader = ({
     column,
@@ -289,7 +289,7 @@ export function UsersTable({
               <Eye className="h-4 w-4" />
             </Link>
           </Button>
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             onClick={() => handleUploadClick(row.original.id)}
@@ -310,7 +310,7 @@ export function UsersTable({
             accept=".xml"
             onChange={(e) => handleUpload(row.original.id, e)}
             className="hidden"
-          />
+          /> */}
           {/* <Button
             variant="outline"
             size="icon"

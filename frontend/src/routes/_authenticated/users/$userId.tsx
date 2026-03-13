@@ -5,7 +5,7 @@ import {
   // Link as LinkIcon,
   Trash2,
   Check,
-  Upload,
+  // Upload,
   Loader2,
   User,
   Dumbbell,
@@ -19,7 +19,7 @@ import {
 import {
   useUser,
   useDeleteUser,
-  useAppleXmlUpload,
+  // useAppleXmlUpload,
   useGenerateInvitationCode,
 } from '@/hooks/api/use-users';
 import { ROUTES } from '@/lib/constants/routes';
@@ -85,7 +85,7 @@ function UserDetailPage() {
   const [sleepDateRange, setSleepDateRange] = useState<DateRangeValue>(30);
 
   const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
-  const { handleUpload, isUploading: isUploadingFile } = useAppleXmlUpload();
+  // const { handleUpload, isUploading: isUploadingFile } = useAppleXmlUpload();
   const {
     mutate: generateInvitationCode,
     data: invitationCodeData,
@@ -95,9 +95,9 @@ function UserDetailPage() {
   const [codeCopied, setCodeCopied] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [isCodeDialogOpen, setIsCodeDialogOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isUploading = isUploadingFile(userId);
+  // const isUploading = isUploadingFile(userId);
 
   // Tab configuration
   const tabs: TabConfig[] = useMemo(
@@ -166,9 +166,9 @@ function UserDetailPage() {
   //   }
   // };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
+  // const handleUploadClick = () => {
+  //   fileInputRef.current?.click();
+  // };
 
   const handleDelete = () => {
     deleteUser(userId, {
@@ -242,7 +242,7 @@ function UserDetailPage() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          {/* <Button
             variant="secondary"
             onClick={handleUploadClick}
             disabled={isUploading}
@@ -265,7 +265,7 @@ function UserDetailPage() {
             accept=".xml"
             onChange={(e) => handleUpload(userId, e)}
             className="hidden"
-          />
+          /> */}
           {/* <Button variant="secondary" onClick={handleCopyPairLink}>
             {copied ? (
               <>
