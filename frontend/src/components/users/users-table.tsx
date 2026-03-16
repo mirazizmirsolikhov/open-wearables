@@ -20,7 +20,7 @@ import {
   ChevronUp,
   ChevronsUpDown,
   // Link as LinkIcon,
-  // Loader2,
+  Loader2,
   // Upload,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';

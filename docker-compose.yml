@@ -138,9 +138,11 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
     container_name: frontend__open-wearables
-    image: open-wearables-frontend:dev
+    image: open-wearables-frontend:prod
     pull_policy: never
     ports:
       - "3000:3000"

@@ -171,11 +171,8 @@ function UserDetailPage() {
   // };
 
   const handleDelete = () => {
-    deleteUser(userId, {
-      onSuccess: () => {
-        navigate({ to: ROUTES.users });
-      },
-    });
+    navigate({ to: ROUTES.users });
+    deleteUser(userId);
   };
 
   const handleGenerateInvitationCode = () => {
