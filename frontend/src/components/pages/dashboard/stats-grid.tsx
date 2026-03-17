@@ -1,4 +1,5 @@
 import { Users, Activity, Database } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { StatsCard } from './stats-card';
 import { cn } from '@/lib/utils';
 import type { DashboardStats } from '@/lib/api/types';
@@ -9,28 +10,30 @@ export interface StatsGridProps {
 }
 
 export function StatsGrid({ stats, className }: StatsGridProps) {
+  const { t } = useTranslation();
+
   const statCards = [
     {
-      title: 'Total Users',
+      title: t('dashboard.totalUsers'),
       value: stats.total_users.count,
       suffix: '',
-      description: 'Registered users',
+      description: '',
       icon: Users,
       growth: stats.total_users.weekly_growth,
     },
     {
-      title: 'Active Connections',
+      title: t('dashboard.activeConnections'),
       value: stats.active_conn.count,
       suffix: '',
-      description: 'Connected wearables',
+      description: '',
       icon: Activity,
       growth: stats.active_conn.weekly_growth,
     },
     {
-      title: 'Data Points',
+      title: t('dashboard.dataPoints'),
       value: stats.data_points.count / 1000,
       suffix: 'K',
-      description: 'Health data collected',
+      description: '',
       icon: Database,
       decimalPlaces: 1,
       growth: stats.data_points.weekly_growth,

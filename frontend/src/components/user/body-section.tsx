@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Scale,
   Percent,
@@ -85,6 +86,7 @@ interface PeriodToggleProps {
 }
 
 function PeriodToggle({ value, onChange }: PeriodToggleProps) {
+  const { t } = useTranslation();
   const getButtonClass = (period: 1 | 7) =>
     `px-2 py-1 text-xs rounded ${
       value === period
@@ -95,10 +97,10 @@ function PeriodToggle({ value, onChange }: PeriodToggleProps) {
   return (
     <div className="flex gap-1">
       <button onClick={() => onChange(1)} className={getButtonClass(1)}>
-        Today
+        {t('body.today')}
       </button>
       <button onClick={() => onChange(7)} className={getButtonClass(7)}>
-        7 Days
+        {t('body.sevenDays')}
       </button>
     </div>
   );
@@ -144,6 +146,7 @@ function BodySectionSkeleton() {
 // ============================================================================
 
 export function BodySection({ userId }: BodySectionProps) {
+  const { t } = useTranslation();
   const [averagePeriod, setAveragePeriod] = useState<1 | 7>(7);
 
   const { data: bodySummary, isLoading } = useBodySummary(userId, {
@@ -161,7 +164,7 @@ export function BodySection({ userId }: BodySectionProps) {
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
       <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium text-white">Body Metrics</h3>
+          <h3 className="text-sm font-medium text-white">{t('body.bodyMetrics')}</h3>
           {bodySummary?.source?.provider && (
             <SourceBadge provider={bodySummary.source.provider} />
           )}
@@ -178,7 +181,7 @@ export function BodySection({ userId }: BodySectionProps) {
             <div>
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                  Body Composition
+                  {t('body.bodyComposition')}
                 </h4>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -187,14 +190,14 @@ export function BodySection({ userId }: BodySectionProps) {
                   iconColor="text-blue-400"
                   iconBgColor="bg-blue-500/10"
                   value={formatWeight(slowChangingData?.weight_kg ?? null)}
-                  label="Weight"
+                  label={t('body.weight')}
                 />
                 <MetricCard
                   icon={Ruler}
                   iconColor="text-cyan-400"
                   iconBgColor="bg-cyan-500/10"
                   value={formatHeight(slowChangingData?.height_cm ?? null)}
-                  label="Height"
+                  label={t('body.height')}
                 />
                 <MetricCard
                   icon={Percent}
@@ -203,21 +206,21 @@ export function BodySection({ userId }: BodySectionProps) {
                   value={formatPercentDecimal(
                     slowChangingData?.body_fat_percent ?? null
                   )}
-                  label="Body Fat"
+                  label={t('body.bodyFat')}
                 />
                 <MetricCard
                   icon={Dumbbell}
                   iconColor="text-emerald-400"
                   iconBgColor="bg-emerald-500/10"
                   value={formatWeight(slowChangingData?.muscle_mass_kg ?? null)}
-                  label="Muscle Mass"
+                  label={t('body.muscleMass')}
                 />
                 <MetricCard
                   icon={Calculator}
                   iconColor="text-purple-400"
                   iconBgColor="bg-purple-500/10"
                   value={formatBmi(slowChangingData?.bmi ?? null)}
-                  label="BMI"
+                  label={t('body.bmi')}
                   sublabel={bmiCategory.label || undefined}
                   sublabelColor={bmiCategory.color}
                 />
@@ -228,7 +231,7 @@ export function BodySection({ userId }: BodySectionProps) {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                  Vitals ({formatAveragePeriod(averagePeriod)})
+                  {t('body.vitals')} ({formatAveragePeriod(averagePeriod)})
                 </h4>
                 <PeriodToggle
                   value={averagePeriod}
@@ -241,14 +244,14 @@ export function BodySection({ userId }: BodySectionProps) {
                   iconColor="text-rose-400"
                   iconBgColor="bg-rose-500/10"
                   value={formatHeartRate(averagedData?.resting_heart_rate_bpm)}
-                  label="Resting HR (bpm)"
+                  label={t('body.restingHr')}
                 />
                 <MetricCard
                   icon={Activity}
                   iconColor="text-indigo-400"
                   iconBgColor="bg-indigo-500/10"
                   value={formatHrv(averagedData?.avg_hrv_sdnn_ms)}
-                  label="HRV (ms)"
+                  label={t('body.hrv')}
                 />
               </div>
             </div>
@@ -257,7 +260,7 @@ export function BodySection({ userId }: BodySectionProps) {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                  Recent Readings
+                  {t('body.recentReadings')}
                 </h4>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -268,7 +271,7 @@ export function BodySection({ userId }: BodySectionProps) {
                   value={formatTemperature(
                     latestData?.body_temperature_celsius ?? null
                   )}
-                  label="Body Temp"
+                  label={t('body.bodyTemp')}
                   sublabel={
                     latestData?.body_temperature_measured_at
                       ? formatLastUpdated(
@@ -282,7 +285,7 @@ export function BodySection({ userId }: BodySectionProps) {
                   iconColor="text-red-400"
                   iconBgColor="bg-red-500/10"
                   value={formatBloodPressure(latestData?.blood_pressure)}
-                  label="Blood Pressure"
+                  label={t('body.bloodPressure')}
                   sublabel={
                     latestData?.blood_pressure_measured_at
                       ? formatLastUpdated(latestData.blood_pressure_measured_at)

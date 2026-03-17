@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
 import {
@@ -51,6 +52,7 @@ function WorkoutRow({
   workout: EventRecordResponse;
   userId: string;
 }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const style = getWorkoutStyle(workout.type || workout.category || '');
   const category = getWorkoutCategory(workout.type || workout.category || '');
@@ -118,7 +120,7 @@ function WorkoutRow({
                 <p className="text-sm font-medium text-white">
                   {formatDuration(workout.duration_seconds)}
                 </p>
-                <p className="text-xs text-zinc-500">Duration</p>
+                <p className="text-xs text-zinc-500">{t('workout.duration')}</p>
               </div>
             </div>
 
@@ -129,7 +131,7 @@ function WorkoutRow({
                 <p className="text-sm font-medium text-white">
                   {formatCalories(workout.calories_kcal)}
                 </p>
-                <p className="text-xs text-zinc-500">Calories</p>
+                <p className="text-xs text-zinc-500">{t('workout.calories')}</p>
               </div>
             </div>
 
@@ -142,7 +144,7 @@ function WorkoutRow({
                     ? `${Math.round(Number(workout.avg_heart_rate_bpm))} bpm`
                     : '-'}
                 </p>
-                <p className="text-xs text-zinc-500">Avg HR</p>
+                <p className="text-xs text-zinc-500">{t('workout.avgHr')}</p>
               </div>
             </div>
           </div>
@@ -164,7 +166,7 @@ function WorkoutRow({
           {/* Heart Rate During Workout Chart */}
           <div>
             <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">
-              Heart Rate During Workout
+              {t('workout.hrDuringWorkout')}
             </h4>
             {hrLoading ? (
               <div className="h-[160px] flex items-center justify-center">
@@ -213,7 +215,7 @@ function WorkoutRow({
               </ChartContainer>
             ) : (
               <p className="text-xs text-zinc-500 text-center py-4">
-                No heart rate data available for this workout
+                {t('workout.noHrData')}
               </p>
             )}
           </div>
@@ -311,6 +313,7 @@ export function WorkoutSection({
   dateRange,
   onDateRangeChange,
 }: WorkoutSectionProps) {
+  const { t } = useTranslation();
   // Cursor-based pagination for workouts
   const pagination = useCursorPagination();
 
@@ -362,7 +365,7 @@ export function WorkoutSection({
       {/* Summary Section */}
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
         <SectionHeader
-          title="Summary"
+          title={t('workout.summary')}
           dateRange={dateRange}
           onDateRangeChange={onDateRangeChange}
         />
@@ -392,7 +395,7 @@ export function WorkoutSection({
                 <p className="text-2xl font-semibold text-white">
                   {stats.count}
                 </p>
-                <p className="text-xs text-zinc-500 mt-1">Workouts</p>
+                <p className="text-xs text-zinc-500 mt-1">{t('workout.workouts')}</p>
               </div>
 
               {/* Total Time */}
@@ -405,7 +408,7 @@ export function WorkoutSection({
                 <p className="text-2xl font-semibold text-white">
                   {formatDuration(stats.totalDuration)}
                 </p>
-                <p className="text-xs text-zinc-500 mt-1">Total Time</p>
+                <p className="text-xs text-zinc-500 mt-1">{t('workout.totalTime')}</p>
               </div>
 
               {/* Calories */}
@@ -418,7 +421,7 @@ export function WorkoutSection({
                 <p className="text-2xl font-semibold text-white">
                   {Math.round(stats.totalCalories).toLocaleString()}
                 </p>
-                <p className="text-xs text-zinc-500 mt-1">Calories</p>
+                <p className="text-xs text-zinc-500 mt-1">{t('workout.calories')}</p>
               </div>
 
               {/* Distance */}
@@ -431,12 +434,12 @@ export function WorkoutSection({
                 <p className="text-2xl font-semibold text-white">
                   {(stats.totalDistance / 1000).toFixed(1)} km
                 </p>
-                <p className="text-xs text-zinc-500 mt-1">Distance</p>
+                <p className="text-xs text-zinc-500 mt-1">{t('workout.distance')}</p>
               </div>
             </div>
           ) : (
             <p className="text-sm text-zinc-500 text-center py-4">
-              No workouts in this period
+              {t('workout.noWorkoutData')}
             </p>
           )}
         </div>
@@ -445,7 +448,7 @@ export function WorkoutSection({
       {/* Workout List Section */}
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
         <SectionHeader
-          title="All Workouts"
+          title={t('workout.allWorkouts')}
           rightContent={
             !isLoading && hasData ? (
               <span className="text-xs text-zinc-500">
@@ -460,7 +463,7 @@ export function WorkoutSection({
             <WorkoutSectionSkeleton />
           ) : !hasData ? (
             <p className="text-sm text-zinc-500 text-center py-8">
-              No workout data available
+              {t('workout.noWorkoutData')}
             </p>
           ) : (
             <div className="space-y-4">

@@ -11,6 +11,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query/client';
 import { Toaster } from '@/components/ui/sonner';
 
+import '@/lib/i18n';
 import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({

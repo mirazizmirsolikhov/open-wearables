@@ -24,6 +24,7 @@ import {
   // Upload,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import type { UserRead, UserQueryParams } from '@/lib/api/types';
 import { copyToClipboard } from '@/lib/utils/clipboard';
 import { truncateId } from '@/lib/utils/format';
@@ -77,6 +78,7 @@ export function UsersTable({
     pageIndex: page - 1,
     pageSize,
   });
+  const { t } = useTranslation();
   const [globalFilter, setGlobalFilter] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -189,7 +191,7 @@ export function UsersTable({
       accessorKey: 'id',
       header: () => (
         <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
-          User ID
+          {t('users.userId')}
         </span>
       ),
       cell: ({ row }) => (
@@ -216,7 +218,7 @@ export function UsersTable({
       accessorKey: 'external_user_id',
       header: () => (
         <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
-          External User ID
+          {t('users.externalUserId')}
         </span>
       ),
       cell: ({ row }) => (
@@ -233,7 +235,7 @@ export function UsersTable({
       accessorFn: (row) =>
         `${row.first_name || ''} ${row.last_name || ''}`.trim(),
       header: ({ column }) => (
-        <SortableHeader column={column}>Name</SortableHeader>
+        <SortableHeader column={column}>{t('users.name')}</SortableHeader>
       ),
       cell: ({ row }) => {
         const fullName =
@@ -251,7 +253,7 @@ export function UsersTable({
       accessorKey: 'position',
       header: () => (
         <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
-          Position
+          {t('users.position')}
         </span>
       ),
       cell: ({ row }) => (
@@ -264,7 +266,7 @@ export function UsersTable({
     {
       accessorKey: 'email',
       header: ({ column }) => (
-        <SortableHeader column={column}>Email</SortableHeader>
+        <SortableHeader column={column}>{t('users.email')}</SortableHeader>
       ),
       cell: ({ row }) => (
         <span
@@ -279,7 +281,7 @@ export function UsersTable({
     {
       accessorKey: 'created_at',
       header: ({ column }) => (
-        <SortableHeader column={column}>Created</SortableHeader>
+        <SortableHeader column={column}>{t('users.created')}</SortableHeader>
       ),
       cell: ({ row }) => (
         <span className="text-xs text-zinc-500">
@@ -293,7 +295,7 @@ export function UsersTable({
       id: 'actions',
       header: () => (
         <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider text-right block">
-          Actions
+          {t('users.actions')}
         </span>
       ),
       cell: ({ row }) => (
@@ -412,7 +414,7 @@ export function UsersTable({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
           <Input
             type="text"
-            placeholder="Search by name or email..."
+            placeholder={t('users.searchPlaceholder')}
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="bg-zinc-900 border-zinc-800 px-9"

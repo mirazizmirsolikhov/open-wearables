@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import {
@@ -50,8 +51,8 @@ const DAYS_PER_PAGE = 10;
 
 interface MetricDefinition {
   key: ActivityMetricKey;
-  label: string;
-  shortLabel: string;
+  labelKey: string;
+  shortLabelKey: string;
   icon: React.ElementType;
   color: string;
   bgColor: string;
@@ -65,8 +66,8 @@ interface MetricDefinition {
 const METRICS: MetricDefinition[] = [
   {
     key: 'steps',
-    label: 'Total Steps',
-    shortLabel: 'Steps',
+    labelKey: 'activity.totalSteps',
+    shortLabelKey: 'metrics.steps',
     icon: Footprints,
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/10',
@@ -78,8 +79,8 @@ const METRICS: MetricDefinition[] = [
   },
   {
     key: 'calories',
-    label: 'Active Calories',
-    shortLabel: 'Calories',
+    labelKey: 'activity.activeCalories',
+    shortLabelKey: 'metrics.calories',
     icon: Flame,
     color: 'text-orange-400',
     bgColor: 'bg-orange-500/10',
@@ -91,8 +92,8 @@ const METRICS: MetricDefinition[] = [
   },
   {
     key: 'activeTime',
-    label: 'Active Time',
-    shortLabel: 'Active',
+    labelKey: 'activity.activeTime',
+    shortLabelKey: 'activity.activeTime',
     icon: Timer,
     color: 'text-sky-400',
     bgColor: 'bg-sky-500/10',
@@ -104,8 +105,8 @@ const METRICS: MetricDefinition[] = [
   },
   {
     key: 'heartRate',
-    label: 'Avg Heart Rate',
-    shortLabel: 'Heart Rate',
+    labelKey: 'activity.avgHeartRate',
+    shortLabelKey: 'metrics.avgHr',
     icon: Heart,
     color: 'text-rose-400',
     bgColor: 'bg-rose-500/10',
@@ -117,8 +118,8 @@ const METRICS: MetricDefinition[] = [
   },
   {
     key: 'distance',
-    label: 'Total Distance',
-    shortLabel: 'Distance',
+    labelKey: 'activity.totalDistance',
+    shortLabelKey: 'activity.totalDistance',
     icon: MoveHorizontal,
     color: 'text-purple-400',
     bgColor: 'bg-purple-500/10',
@@ -130,8 +131,8 @@ const METRICS: MetricDefinition[] = [
   },
   {
     key: 'floors',
-    label: 'Floors Climbed',
-    shortLabel: 'Floors',
+    labelKey: 'activity.floorsClimbed',
+    shortLabelKey: 'activity.floorsClimbed',
     icon: TrendingUp,
     color: 'text-amber-400',
     bgColor: 'bg-amber-500/10',
@@ -143,8 +144,8 @@ const METRICS: MetricDefinition[] = [
   },
   {
     key: 'sedentary',
-    label: 'Sedentary Time',
-    shortLabel: 'Sedentary',
+    labelKey: 'activity.sedentaryTime',
+    shortLabelKey: 'activity.sedentaryTime',
     icon: Armchair,
     color: 'text-zinc-400',
     bgColor: 'bg-zinc-500/10',
@@ -155,6 +156,23 @@ const METRICS: MetricDefinition[] = [
     unit: 'min',
   },
 ];
+
+/**
+ * Map detail field labels from activity utility to translation keys
+ */
+const DETAIL_LABEL_KEYS: Record<string, string> = {
+  'Distance': 'activity.totalDistance',
+  'Floors Climbed': 'activity.floorsClimbed',
+  'Elevation': 'activity.elevation',
+  'Total Calories': 'activity.totalCalories',
+  'Sedentary Time': 'activity.sedentaryTime',
+  'Max Heart Rate': 'activity.maxHeartRate',
+  'Min Heart Rate': 'activity.minHeartRate',
+  'Light Activity': 'activity.lightActivity',
+  'Moderate Activity': 'activity.moderateActivity',
+  'Vigorous Activity': 'activity.vigorousActivity',
+  'Source': 'activity.source',
+};
 
 // Loading skeleton
 function ActivitySectionSkeleton() {
@@ -178,6 +196,7 @@ function ActivitySectionSkeleton() {
 
 // Activity day row (expandable)
 function ActivityDayRow({ summary }: { summary: ActivitySummary }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Get detail fields using utility function
@@ -218,7 +237,7 @@ function ActivityDayRow({ summary }: { summary: ActivitySummary }) {
               <p className="text-sm font-medium text-white">
                 {formatNumber(summary.steps)}
               </p>
-              <p className="text-xs text-zinc-500">Steps</p>
+              <p className="text-xs text-zinc-500">{t('metrics.steps')}</p>
             </div>
           </div>
 
@@ -229,7 +248,7 @@ function ActivityDayRow({ summary }: { summary: ActivitySummary }) {
               <p className="text-sm font-medium text-white">
                 {formatNumber(summary.active_calories_kcal)}
               </p>
-              <p className="text-xs text-zinc-500">Calories</p>
+              <p className="text-xs text-zinc-500">{t('metrics.calories')}</p>
             </div>
           </div>
 
@@ -242,7 +261,7 @@ function ActivityDayRow({ summary }: { summary: ActivitySummary }) {
                   ? `${Math.round(summary.heart_rate.avg_bpm)} bpm`
                   : '-'}
               </p>
-              <p className="text-xs text-zinc-500">Avg HR</p>
+              <p className="text-xs text-zinc-500">{t('metrics.avgHr')}</p>
             </div>
           </div>
 
@@ -253,7 +272,7 @@ function ActivityDayRow({ summary }: { summary: ActivitySummary }) {
               <p className="text-sm font-medium text-white">
                 {formatMinutes(summary.active_minutes)}
               </p>
-              <p className="text-xs text-zinc-500">Active</p>
+              <p className="text-xs text-zinc-500">{t('activity.activeTime')}</p>
             </div>
           </div>
         </div>
@@ -283,7 +302,7 @@ function ActivityDayRow({ summary }: { summary: ActivitySummary }) {
                     key={field.label}
                     className="flex items-center justify-between py-1"
                   >
-                    <span className="text-sm text-zinc-500">{field.label}</span>
+                    <span className="text-sm text-zinc-500">{DETAIL_LABEL_KEYS[field.label] ? t(DETAIL_LABEL_KEYS[field.label]) : field.label}</span>
                     <span className="text-sm font-medium text-white">
                       {field.value}
                     </span>
@@ -303,7 +322,7 @@ function ActivityDayRow({ summary }: { summary: ActivitySummary }) {
                     key={field.label}
                     className="flex items-center justify-between py-1"
                   >
-                    <span className="text-sm text-zinc-500">{field.label}</span>
+                    <span className="text-sm text-zinc-500">{DETAIL_LABEL_KEYS[field.label] ? t(DETAIL_LABEL_KEYS[field.label]) : field.label}</span>
                     <span className="text-sm font-medium text-white">
                       {field.value}
                     </span>
@@ -322,6 +341,8 @@ export function ActivitySection({
   dateRange,
   onDateRangeChange,
 }: ActivitySectionProps) {
+  const { t } = useTranslation();
+
   // Cursor-based pagination for activity days
   const pagination = useCursorPagination();
 
@@ -394,7 +415,7 @@ export function ActivitySection({
       {/* Summary Section */}
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
         <SectionHeader
-          title="Activity Summary"
+          title={t('activity.activitySummary')}
           dateRange={dateRange}
           onDateRangeChange={onDateRangeChange}
         />
@@ -404,7 +425,7 @@ export function ActivitySection({
             <ActivitySectionSkeleton />
           ) : !stats ? (
             <p className="text-sm text-zinc-500 text-center py-4">
-              No activity data in this period
+              {t('common.noData')}
             </p>
           ) : (
             <div className="space-y-6">
@@ -417,7 +438,7 @@ export function ActivitySection({
                     iconColor={metric.color}
                     iconBgColor={metric.bgColor}
                     value={metric.formatValue(metric.getValue(stats))}
-                    label={metric.label}
+                    label={t(metric.labelKey)}
                     isClickable
                     isSelected={selectedMetric === metric.key}
                     glowColor={metric.glowColor}
@@ -430,7 +451,7 @@ export function ActivitySection({
                   iconColor="text-indigo-400"
                   iconBgColor="bg-indigo-500/10"
                   value={String(stats.daysTracked)}
-                  label="Days Tracked"
+                  label={t('activity.daysTracked')}
                 />
               </div>
 
@@ -438,12 +459,12 @@ export function ActivitySection({
               {chartData.length > 1 && (
                 <div className="pt-4 border-t border-zinc-800">
                   <h4 className="text-sm font-medium text-white mb-4">
-                    Daily {currentMetric.shortLabel}
+                    {currentMetric.key === 'steps' ? t('activity.dailySteps') : t(currentMetric.labelKey)}
                   </h4>
                   <ChartContainer
                     config={{
                       value: {
-                        label: currentMetric.shortLabel,
+                        label: t(currentMetric.shortLabelKey),
                         color: ACTIVITY_METRIC_CHART_COLORS[selectedMetric],
                       },
                     }}
@@ -491,11 +512,11 @@ export function ActivitySection({
       {/* Activity Days Section */}
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
         <SectionHeader
-          title="Activity Days"
+          title={t('activity.activityDays')}
           rightContent={
             !daysLoading && hasData ? (
               <span className="text-xs text-zinc-500">
-                Page {pagination.currentPage}
+                {t('common.page')} {pagination.currentPage}
               </span>
             ) : undefined
           }
@@ -531,7 +552,7 @@ export function ActivitySection({
             </div>
           ) : displayedDays.length === 0 ? (
             <p className="text-sm text-zinc-500 text-center py-8">
-              No activity data available
+              {t('common.noData')}
             </p>
           ) : (
             <div className="space-y-4">

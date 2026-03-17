@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useDashboardStats, useUsersMetrics } from '@/hooks/api/use-dashboard';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import {
   StatsGrid,
@@ -60,7 +61,7 @@ function MetricCard({
   );
 }
 
-function UserCard({ u }: { u: UserMetricsSummary }) {
+function UserCard({ u, t }: { u: UserMetricsSummary; t: (key: string) => string }) {
   const name = u.first_name
     ? `${u.first_name}${u.last_name ? ` ${u.last_name}` : ''}`
     : u.external_user_id || u.id.slice(0, 8);
@@ -107,34 +108,34 @@ function UserCard({ u }: { u: UserMetricsSummary }) {
         <div className="p-4 grid grid-cols-4 gap-2">
           <MetricCard
             icon="👟"
-            label="Steps"
+            label={t('metrics.steps')}
             value={u.today_steps?.toLocaleString() ?? null}
             color="green"
-            subtitle="today"
+            subtitle={t('metrics.today')}
           />
           <MetricCard
             icon="🔥"
-            label="Calories"
+            label={t('metrics.calories')}
             value={u.today_calories != null ? Math.round(u.today_calories) : null}
-            unit="kcal"
+            unit={t('metrics.kcal')}
             color="orange"
-            subtitle="today"
+            subtitle={t('metrics.today')}
           />
           <MetricCard
             icon="❤️"
-            label="Heart Rate"
+            label={t('metrics.heartRate')}
             value={u.last_heart_rate != null ? Math.round(u.last_heart_rate) : null}
-            unit="bpm"
+            unit={t('metrics.bpm')}
             color="red"
             subtitle={u.today_hr_min != null && u.today_hr_max != null
-              ? `${Math.round(u.today_hr_min)}-${Math.round(u.today_hr_max)} range`
+              ? `${Math.round(u.today_hr_min)}-${Math.round(u.today_hr_max)} ${t('metrics.range')}`
               : u.last_heart_rate_at
                 ? formatDistanceToNow(new Date(u.last_heart_rate_at), { addSuffix: true })
                 : undefined}
           />
           <MetricCard
             icon="💨"
-            label="SpO2"
+            label={t('metrics.spo2')}
             value={u.last_spo2 != null ? Math.round(u.last_spo2) : null}
             unit="%"
             color="cyan"
@@ -144,40 +145,40 @@ function UserCard({ u }: { u: UserMetricsSummary }) {
           />
           <MetricCard
             icon="😴"
-            label="Last Sleep"
+            label={t('metrics.sleep')}
             value={u.last_sleep_hours ?? null}
-            unit="hrs"
+            unit={t('metrics.hrs')}
             color="purple"
-            subtitle={`${u.sleep_sessions_total} sessions total`}
+            subtitle={`${u.sleep_sessions_total} ${t('metrics.sessionsTotal')}`}
           />
           <MetricCard
             icon="💪"
-            label="Workouts"
+            label={t('metrics.workouts')}
             value={u.total_workouts}
             color="amber"
-            subtitle="total"
+            subtitle={t('metrics.total')}
           />
           <MetricCard
             icon="📊"
-            label="Avg HR"
+            label={t('metrics.avgHr')}
             value={u.today_hr_avg != null ? Math.round(u.today_hr_avg) : null}
-            unit="bpm"
+            unit={t('metrics.bpm')}
             color="pink"
-            subtitle="today"
+            subtitle={t('metrics.today')}
           />
           <MetricCard
             icon="📈"
-            label="Data Points"
+            label={t('metrics.dataPoints')}
             value={u.total_data_points > 1000
               ? `${(u.total_data_points / 1000).toFixed(1)}k`
               : u.total_data_points}
             color="blue"
-            subtitle="total"
+            subtitle={t('metrics.total')}
           />
         </div>
       ) : (
         <div className="p-6 text-center text-zinc-600 text-sm">
-          No health data yet
+          {t('dashboard.noHealthData')}
         </div>
       )}
     </Link>
@@ -185,6 +186,7 @@ function UserCard({ u }: { u: UserMetricsSummary }) {
 }
 
 function DashboardPage() {
+  const { t } = useTranslation();
   const { data: stats, isLoading, error, refetch } = useDashboardStats();
   const { data: usersMetrics, isLoading: isLoadingMetrics } = useUsersMetrics();
 
@@ -200,9 +202,9 @@ function DashboardPage() {
     <div className="p-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-medium text-white">Dashboard</h1>
+        <h1 className="text-2xl font-medium text-white">{t('dashboard.title')}</h1>
         <p className="text-sm text-zinc-500 mt-1">
-          Your platform overview and key metrics
+          {t('dashboard.subtitle')}
         </p>
       </div>
 
@@ -213,13 +215,13 @@ function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-medium text-white">Users & Live Metrics</h2>
+            <h2 className="text-lg font-medium text-white">{t('dashboard.usersMetrics')}</h2>
             <p className="text-xs text-zinc-500 mt-0.5">
-              Real-time health data from connected wearables
+              {t('dashboard.usersMetricsSubtitle')}
             </p>
           </div>
           <span className="text-[10px] text-zinc-600 bg-zinc-800/50 px-2 py-1 rounded-full">
-            Auto-refresh 3 min
+            {t('dashboard.autoRefresh')}
           </span>
         </div>
         {isLoadingMetrics ? (
@@ -231,12 +233,12 @@ function DashboardPage() {
         ) : usersMetrics && usersMetrics.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             {usersMetrics.map((u) => (
-              <UserCard key={u.id} u={u} />
+              <UserCard key={u.id} u={u} t={t} />
             ))}
           </div>
         ) : (
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500">
-            No users found
+            {t('dashboard.noUsers')}
           </div>
         )}
       </div>

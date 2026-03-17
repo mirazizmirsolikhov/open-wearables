@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Users as UsersIcon } from 'lucide-react';
 import { useUsers, useDeleteUser, useCreateUser } from '@/hooks/api/use-users';
 import type { UserCreate, UserQueryParams } from '@/lib/api/types';
@@ -31,6 +32,7 @@ export const Route = createFileRoute('/_authenticated/users/')({
 });
 
 function UsersPage() {
+  const { t } = useTranslation();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [formData, setFormData] = useState<UserCreate>(initialFormState);
@@ -154,14 +156,14 @@ function UsersPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-medium text-white">Users</h1>
+          <h1 className="text-2xl font-medium text-white">{t('users.title')}</h1>
           <p className="text-sm text-zinc-500 mt-1">
-            Manage your platform users and their wearable connections
+            {t('users.subtitle')}
           </p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4" />
-          Add User
+          {t('users.addUser')}
         </Button>
       </div>
 
@@ -180,14 +182,14 @@ function UsersPage() {
       ) : (
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-12 text-center">
           <UsersIcon className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-          <p className="text-zinc-400 mb-2">No users found</p>
+          <p className="text-zinc-400 mb-2">{t('users.noUsersFound')}</p>
           <Button
             variant="outline"
             onClick={() => setIsCreateDialogOpen(true)}
             className="mt-4"
           >
             <Plus className="h-4 w-4" />
-            Create First User
+            {t('users.createFirst')}
           </Button>
         </div>
       )}
@@ -204,16 +206,15 @@ function UsersPage() {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Create New User</DialogTitle>
+            <DialogTitle>{t('users.createNew')}</DialogTitle>
             <DialogDescription>
-              Create a new user to connect wearable devices and collect health
-              data.
+              {t('users.createNewDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="external_user_id" className="text-zinc-300">
-                External User ID
+                {t('users.externalUserId')}
               </Label>
               <Input
                 id="external_user_id"
@@ -235,13 +236,13 @@ function UsersPage() {
                 </p>
               )}
               <p className="text-[10px] text-zinc-600">
-                Your unique identifier for this user (max 255 characters)
+                {t('users.externalUserIdHint')}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="first_name" className="text-zinc-300">
-                  First Name
+                  {t('users.firstName')}
                 </Label>
                 <Input
                   id="first_name"
@@ -262,7 +263,7 @@ function UsersPage() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="last_name" className="text-zinc-300">
-                  Last Name
+                  {t('users.lastName')}
                 </Label>
                 <Input
                   id="last_name"
@@ -282,7 +283,7 @@ function UsersPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-zinc-300">
-                Email
+                {t('users.email')}
               </Label>
               <Input
                 id="email"
@@ -300,7 +301,7 @@ function UsersPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="position" className="text-zinc-300">
-                Position
+                {t('users.position')}
               </Label>
               <Input
                 id="position"
@@ -315,10 +316,10 @@ function UsersPage() {
           </div>
           <DialogFooter className="gap-3">
             <Button variant="outline" onClick={handleCloseCreateDialog}>
-              Cancel
+              {t('users.cancel')}
             </Button>
             <Button onClick={handleCreateUser} disabled={createUser.isPending}>
-              {createUser.isPending ? 'Creating...' : 'Create User'}
+              {createUser.isPending ? t('users.creating') : t('users.createUser')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -330,17 +331,16 @@ function UsersPage() {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete User?</DialogTitle>
+            <DialogTitle>{t('users.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. This will permanently delete the
-              user and all associated data including:
+              {t('users.deleteDesc')}
             </DialogDescription>
           </DialogHeader>
           <div>
             <ul className="list-disc list-inside text-sm text-zinc-500 space-y-1">
-              <li>All wearable device connections</li>
-              <li>All health data (sleep, activity)</li>
-              <li>All automation triggers for this user</li>
+              <li>{t('users.deleteConnections')}</li>
+              <li>{t('users.deleteHealth')}</li>
+              <li>{t('users.deleteAutomation')}</li>
             </ul>
             <div className="mt-4 p-3 bg-zinc-800 rounded-md">
               <p className="text-xs text-zinc-500">User ID:</p>
@@ -351,14 +351,14 @@ function UsersPage() {
           </div>
           <DialogFooter className="gap-3">
             <Button variant="outline" onClick={() => setDeleteUserId(null)}>
-              Cancel
+              {t('users.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteUser}
               disabled={deleteUser.isPending}
             >
-              {deleteUser.isPending ? 'Deleting...' : 'Delete User'}
+              {deleteUser.isPending ? t('users.deleting') : t('users.deleteUser')}
             </Button>
           </DialogFooter>
         </DialogContent>

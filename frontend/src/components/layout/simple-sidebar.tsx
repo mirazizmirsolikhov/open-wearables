@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import {
   Home,
   Users,
-  FileText,
   LogOut,
-  Settings,
-  ExternalLink,
+  Languages,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -17,21 +16,14 @@ import { ROUTES } from '@/lib/constants/routes';
 import { Button } from '@/components/ui/button';
 
 const menuItems = [
-  {
-    title: 'Dashboard',
-    url: ROUTES.dashboard,
-    icon: Home,
-  },
-  {
-    title: 'Users',
-    url: ROUTES.users,
-    icon: Users,
-  },
+  { titleKey: 'nav.dashboard', url: ROUTES.dashboard, icon: Home },
+  { titleKey: 'nav.users', url: ROUTES.users, icon: Users },
 ];
 
 export function SimpleSidebar() {
   const location = useLocation();
   const { logout, isLoggingOut } = useAuth();
+  const { t, i18n } = useTranslation();
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem('sidebar-collapsed') === 'true'
   );
@@ -40,6 +32,12 @@ export function SimpleSidebar() {
     const next = !collapsed;
     setCollapsed(next);
     localStorage.setItem('sidebar-collapsed', String(next));
+  };
+
+  const toggleLanguage = () => {
+    const next = i18n.language === 'ru' ? 'en' : 'ru';
+    i18n.changeLanguage(next);
+    localStorage.setItem('language', next);
   };
 
   return (
@@ -74,32 +72,13 @@ export function SimpleSidebar() {
       <nav className="flex-1 p-2 space-y-1">
         {menuItems.map((item) => {
           const isActive = location.pathname.startsWith(item.url);
-
-          if (item.external) {
-            return (
-              <a
-                key={item.title}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={collapsed ? item.title : undefined}
-                className={cn(
-                  'flex items-center gap-3 rounded-md text-sm text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200 transition-all duration-200',
-                  collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2'
-                )}
-              >
-                <item.icon className="h-4 w-4 text-zinc-500 flex-shrink-0" />
-                {!collapsed && <span>{item.title}</span>}
-                {!collapsed && <ExternalLink className="ml-auto h-3 w-3 text-zinc-600" />}
-              </a>
-            );
-          }
+          const title = t(item.titleKey);
 
           return (
             <Link
-              key={item.title}
+              key={item.titleKey}
               to={item.url}
-              title={collapsed ? item.title : undefined}
+              title={collapsed ? title : undefined}
               className={cn(
                 'flex items-center gap-3 rounded-md text-sm transition-all duration-200',
                 collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2',
@@ -116,11 +95,31 @@ export function SimpleSidebar() {
                   isActive ? 'text-white' : 'text-zinc-500'
                 )}
               />
-              {!collapsed && <span>{item.title}</span>}
+              {!collapsed && <span>{title}</span>}
             </Link>
           );
         })}
       </nav>
+
+      {/* Divider */}
+      <div className="mx-2 border-t border-zinc-900" />
+
+      {/* Language Switcher */}
+      <div className="p-2">
+        <button
+          onClick={toggleLanguage}
+          title={collapsed ? t(`language.${i18n.language === 'ru' ? 'en' : 'ru'}`) : undefined}
+          className={cn(
+            'w-full flex items-center gap-3 rounded-md text-sm text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200 transition-all duration-200',
+            collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2'
+          )}
+        >
+          <Languages className="h-4 w-4 text-zinc-500 flex-shrink-0" />
+          {!collapsed && (
+            <span>{i18n.language === 'ru' ? 'English' : 'Русский'}</span>
+          )}
+        </button>
+      </div>
 
       {/* Divider */}
       <div className="mx-2 border-t border-zinc-900" />
@@ -131,14 +130,14 @@ export function SimpleSidebar() {
           variant="ghost"
           onClick={() => logout()}
           disabled={isLoggingOut}
-          title={collapsed ? 'Logout' : undefined}
+          title={collapsed ? t('nav.logout') : undefined}
           className={cn(
             'w-full gap-3 text-zinc-400 hover:text-red-400',
             collapsed ? 'justify-center px-2' : 'justify-start px-3'
           )}
         >
           <LogOut className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && (isLoggingOut ? 'Logging out...' : 'Logout')}
+          {!collapsed && (isLoggingOut ? t('nav.loggingOut') : t('nav.logout'))}
         </Button>
       </div>
     </aside>

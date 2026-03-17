@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 export type DateRangeValue = 7 | 30 | 90 | 365;
@@ -8,11 +9,19 @@ interface DateRangeSelectorProps {
   className?: string;
 }
 
+const labelKeys: Record<DateRangeValue, string> = {
+  7: 'dateRange.7d',
+  30: 'dateRange.30d',
+  90: 'dateRange.90d',
+  365: 'dateRange.365d',
+};
+
 export function DateRangeSelector({
   value,
   onChange,
   className,
 }: DateRangeSelectorProps) {
+  const { t } = useTranslation();
   const ranges: DateRangeValue[] = [7, 30, 90, 365];
 
   return (
@@ -33,7 +42,7 @@ export function DateRangeSelector({
               : 'text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800'
           )}
         >
-          {days}d
+          {t(labelKeys[days])}
         </button>
       ))}
     </div>

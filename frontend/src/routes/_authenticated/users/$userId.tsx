@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useMemo, type ReactNode } from 'react';
 import {
   ArrowLeft,
@@ -71,6 +72,7 @@ interface TabConfig {
 }
 
 function UserDetailPage() {
+  const { t } = useTranslation();
   const { userId } = Route.useParams();
   const navigate = useNavigate();
   const { data: user, isLoading: userLoading } = useUser(userId);
@@ -104,7 +106,7 @@ function UserDetailPage() {
     () => [
       {
         id: 'activity',
-        label: 'Activity',
+        label: t('tabs.activity'),
         icon: Activity,
         content: (
           <ActivitySection
@@ -116,7 +118,7 @@ function UserDetailPage() {
       },
       {
         id: 'sleep',
-        label: 'Sleep',
+        label: t('tabs.sleep'),
         icon: Moon,
         content: (
           <SleepSection
@@ -128,19 +130,19 @@ function UserDetailPage() {
       },
       {
         id: 'body',
-        label: 'Body',
+        label: t('tabs.body'),
         icon: Scale,
         content: <BodySection userId={userId} />,
       },
       {
         id: 'profile',
-        label: 'Profile',
+        label: t('tabs.profile'),
         icon: User,
         content: <ProfileSection userId={userId} />,
       },
       {
         id: 'workouts',
-        label: 'Workouts',
+        label: t('tabs.workouts'),
         icon: Dumbbell,
         content: (
           <WorkoutSection
@@ -151,7 +153,7 @@ function UserDetailPage() {
         ),
       },
     ],
-    [userId, workoutDateRange, activityDateRange, sleepDateRange]
+    [userId, workoutDateRange, activityDateRange, sleepDateRange, t]
   );
 
   // const handleCopyPairLink = async () => {
@@ -197,11 +199,11 @@ function UserDetailPage() {
     return (
       <div className="p-8">
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-12 text-center">
-          <p className="text-zinc-400">User not found</p>
+          <p className="text-zinc-400">{t('users.noUsersFound')}</p>
           <Button variant="outline" className="mt-4" asChild>
             <Link to={ROUTES.users}>
               <ArrowLeft className="h-4 w-4" />
-              Back to Users
+              {t('users.title')}
             </Link>
           </Button>
         </div>
@@ -230,10 +232,10 @@ function UserDetailPage() {
               <h1 className="text-2xl font-medium text-white">
                 {user?.first_name || user?.last_name
                   ? `${user?.first_name || ''} ${user?.last_name || ''}`.trim()
-                  : 'Unnamed User'}
+                  : t('users.noUsersFound')}
               </h1>
               <p className="text-sm text-zinc-500">
-                {user?.email || 'No email'}
+                {user?.email || t('userDetail.noEmail')}
               </p>
             </div>
           )}
@@ -286,39 +288,38 @@ function UserDetailPage() {
                 {isGeneratingCode ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating...
+                    {t('common.loading')}
                   </>
                 ) : (
                   <>
                     <Smartphone className="h-4 w-4" />
-                    Connect Mobile App
+                    {t('userDetail.connectMobileApp')}
                   </>
                 )}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              Generate a one-time code to connect the Open Wearables iOS app
+              {t('userDetail.connectMobileApp')}
             </TooltipContent>
           </Tooltip>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" disabled={isDeleting}>
                 <Trash2 className="h-4 w-4" />
-                {isDeleting ? 'Deleting...' : 'Delete User'}
+                {isDeleting ? t('users.deleting') : t('userDetail.deleteUser')}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete User</AlertDialogTitle>
+                <AlertDialogTitle>{t('users.deleteTitle')}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this user? This action cannot
-                  be undone and will permanently remove all associated data.
+                  {t('users.deleteDesc')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t('users.cancel')}</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>
-                  Delete
+                  {t('users.delete')}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -347,11 +348,9 @@ function UserDetailPage() {
       <Dialog open={isCodeDialogOpen} onOpenChange={setIsCodeDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Connect Mobile App</DialogTitle>
+            <DialogTitle>{t('userDetail.connectMobileApp')}</DialogTitle>
             <DialogDescription>
-              Enter these details in the Open Wearables iOS app to connect it to
-              this user's account. The invitation code is single-use and will
-              expire.
+              {t('userDetail.connectMobileApp')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
