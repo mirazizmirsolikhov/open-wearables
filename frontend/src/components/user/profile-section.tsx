@@ -154,6 +154,10 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
                   <p className="text-sm text-zinc-300">{user?.email || '—'}</p>
                 </div>
                 <div>
+                  <p className="text-xs text-zinc-500 mb-1">Position</p>
+                  <p className="text-sm text-zinc-300">{user?.position || '—'}</p>
+                </div>
+                <div>
                   <p className="text-xs text-zinc-500 mb-1">Created</p>
                   <p className="text-sm text-zinc-300">
                     {formatDate(user?.created_at)}
