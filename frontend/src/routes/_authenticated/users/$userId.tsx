@@ -76,7 +76,7 @@ function UserDetailPage() {
   const { data: user, isLoading: userLoading } = useUser(userId);
 
   // Tab state
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('activity');
 
   // Date range states for different sections
   const [workoutDateRange, setWorkoutDateRange] = useState<DateRangeValue>(30);
@@ -102,24 +102,6 @@ function UserDetailPage() {
   // Tab configuration
   const tabs: TabConfig[] = useMemo(
     () => [
-      {
-        id: 'profile',
-        label: 'Profile',
-        icon: User,
-        content: <ProfileSection userId={userId} />,
-      },
-      {
-        id: 'workouts',
-        label: 'Workouts',
-        icon: Dumbbell,
-        content: (
-          <WorkoutSection
-            userId={userId}
-            dateRange={workoutDateRange}
-            onDateRangeChange={setWorkoutDateRange}
-          />
-        ),
-      },
       {
         id: 'activity',
         label: 'Activity',
@@ -149,6 +131,24 @@ function UserDetailPage() {
         label: 'Body',
         icon: Scale,
         content: <BodySection userId={userId} />,
+      },
+      {
+        id: 'profile',
+        label: 'Profile',
+        icon: User,
+        content: <ProfileSection userId={userId} />,
+      },
+      {
+        id: 'workouts',
+        label: 'Workouts',
+        icon: Dumbbell,
+        content: (
+          <WorkoutSection
+            userId={userId}
+            dateRange={workoutDateRange}
+            onDateRangeChange={setWorkoutDateRange}
+          />
+        ),
       },
     ],
     [userId, workoutDateRange, activityDateRange, sleepDateRange]
