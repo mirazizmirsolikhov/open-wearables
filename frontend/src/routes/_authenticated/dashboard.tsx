@@ -84,6 +84,7 @@ function UserCard({ u }: { u: UserMetricsSummary }) {
           </div>
           <div>
             <div className="text-white font-semibold text-sm">{name}</div>
+            {u.position && <div className="text-zinc-400 text-xs">{u.position}</div>}
             {u.email && <div className="text-zinc-500 text-xs">{u.email}</div>}
           </div>
         </div>

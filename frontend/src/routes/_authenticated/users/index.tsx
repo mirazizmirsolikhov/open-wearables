@@ -21,6 +21,7 @@ const initialFormState: UserCreate = {
   first_name: '',
   last_name: '',
   email: '',
+  position: '',
 };
 
 const DEFAULT_PAGE_SIZE = 9;
@@ -81,6 +82,7 @@ function UsersPage() {
       first_name: formData.first_name?.trim() || null,
       last_name: formData.last_name?.trim() || null,
       email: formData.email?.trim() || null,
+      position: formData.position?.trim() || null,
     };
 
     createUser.mutate(payload, {
@@ -295,6 +297,20 @@ function UsersPage() {
               {formErrors.email && (
                 <p className="text-xs text-red-500">{formErrors.email}</p>
               )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="position" className="text-zinc-300">
+                Position
+              </Label>
+              <Input
+                id="position"
+                placeholder="Software Engineer"
+                value={formData.position || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, position: e.target.value })
+                }
+                className="bg-zinc-800 border-zinc-700"
+              />
             </div>
           </div>
           <DialogFooter className="gap-3">

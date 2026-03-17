@@ -15,6 +15,7 @@ class User(BaseDbModel):
     first_name: Mapped[str_100 | None]
     last_name: Mapped[str_100 | None]
     email: Mapped[email | None]
+    position: Mapped[str_100 | None]
 
     external_user_id: Mapped[Unique[str_255] | None]
 

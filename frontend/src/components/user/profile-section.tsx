@@ -34,6 +34,7 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
     first_name: '',
     last_name: '',
     email: '',
+    position: '',
     external_user_id: '',
   });
 
@@ -43,6 +44,7 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
         first_name: user.first_name || '',
         last_name: user.last_name || '',
         email: user.email || '',
+        position: user.position || '',
         external_user_id: user.external_user_id || '',
       });
     }
@@ -79,6 +81,7 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
           first_name: editForm.first_name || null,
           last_name: editForm.last_name || null,
           email: editForm.email || null,
+          position: editForm.position || null,
           external_user_id: editForm.external_user_id || null,
         },
       },
@@ -268,6 +271,20 @@ export function ProfileSection({ userId }: ProfileSectionProps) {
                   setEditForm({ ...editForm, email: e.target.value })
                 }
                 placeholder="john@example.com"
+                className="bg-zinc-800 border-zinc-700"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="position" className="text-zinc-300">
+                Position
+              </Label>
+              <Input
+                id="position"
+                value={editForm.position}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, position: e.target.value })
+                }
+                placeholder="Software Engineer"
                 className="bg-zinc-800 border-zinc-700"
               />
             </div>

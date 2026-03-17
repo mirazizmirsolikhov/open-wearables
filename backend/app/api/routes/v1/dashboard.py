@@ -28,6 +28,7 @@ class UserMetricsSummary(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     email: str | None = None
+    position: str | None = None
     external_user_id: str | None = None
     created_at: datetime
     provider: str | None = None
@@ -184,6 +185,7 @@ async def get_users_with_metrics(db: DbSession, _developer: DeveloperDep):
                 first_name=user.first_name,
                 last_name=user.last_name,
                 email=user.email,
+                position=user.position,
                 external_user_id=user.external_user_id,
                 created_at=user.created_at,
                 provider=connection.provider if connection else None,

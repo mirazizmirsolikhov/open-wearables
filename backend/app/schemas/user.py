@@ -47,6 +47,7 @@ class UserRead(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     email: EmailStr | None = None
+    position: str | None = None
     external_user_id: str | None = None
 
 
@@ -54,6 +55,7 @@ class UserCreate(BaseModel):
     first_name: str | None = Field(None, max_length=100)
     last_name: str | None = Field(None, max_length=100)
     email: EmailStr | None = None
+    position: str | None = Field(None, max_length=100)
     external_user_id: str | None = None
 
 
@@ -66,6 +68,7 @@ class UserUpdate(BaseModel):
     first_name: str | None = Field(None, max_length=100)
     last_name: str | None = Field(None, max_length=100)
     email: EmailStr | None = None
+    position: str | None = Field(None, max_length=100)
     external_user_id: str | None = None
 
 

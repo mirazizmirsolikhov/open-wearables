@@ -16,6 +16,7 @@ export interface UserRead {
   first_name: string | null;
   last_name: string | null;
   email: string | null;
+  position: string | null;
   external_user_id: string | null;
 }
 
@@ -23,6 +24,7 @@ export interface UserCreate {
   first_name?: string | null;
   last_name?: string | null;
   email?: string | null;
+  position?: string | null;
   external_user_id?: string | null;
 }
 
@@ -177,6 +179,7 @@ export interface UserMetricsSummary {
   first_name: string | null;
   last_name: string | null;
   email: string | null;
+  position: string | null;
   external_user_id: string | null;
   created_at: string;
   provider: string | null;

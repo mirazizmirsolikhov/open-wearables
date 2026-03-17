@@ -248,6 +248,20 @@ export function UsersTable({
       },
     },
     {
+      accessorKey: 'position',
+      header: () => (
+        <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+          Position
+        </span>
+      ),
+      cell: ({ row }) => (
+        <span className={row.original.position ? 'text-sm text-zinc-400' : 'text-zinc-600'}>
+          {row.original.position || '—'}
+        </span>
+      ),
+      enableSorting: false,
+    },
+    {
       accessorKey: 'email',
       header: ({ column }) => (
         <SortableHeader column={column}>Email</SortableHeader>
