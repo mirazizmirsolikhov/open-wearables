@@ -2,6 +2,7 @@ import { apiClient } from '../client';
 import { API_ENDPOINTS } from '../config';
 import type {
   DashboardStats,
+  UserMetricsSummary,
   ApiCallsDataPoint,
   DataPointsDataPoint,
   AutomationTriggersDataPoint,
@@ -52,5 +53,9 @@ export const dashboardService = {
     return apiClient.get<TriggersByTypeDataPoint[]>(
       `${API_ENDPOINTS.dashboardCharts}/triggers-by-type`
     );
+  },
+
+  async getUsersMetrics(): Promise<UserMetricsSummary[]> {
+    return apiClient.get<UserMetricsSummary[]>(API_ENDPOINTS.dashboardUsersMetrics);
   },
 };

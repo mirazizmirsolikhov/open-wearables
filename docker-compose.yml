@@ -140,7 +140,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:8000
+        VITE_API_URL: http://192.168.0.50:8000
     container_name: frontend__open-wearables
     image: open-wearables-frontend:prod
     pull_policy: never

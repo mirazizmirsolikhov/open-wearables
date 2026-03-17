@@ -172,6 +172,30 @@ export interface DashboardStats {
   data_points: DataPointsInfo;
 }
 
+export interface UserMetricsSummary {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  external_user_id: string | null;
+  created_at: string;
+  provider: string | null;
+  last_sync: string | null;
+  today_steps: number | null;
+  today_calories: number | null;
+  last_heart_rate: number | null;
+  last_heart_rate_at: string | null;
+  today_hr_min: number | null;
+  today_hr_max: number | null;
+  today_hr_avg: number | null;
+  last_spo2: number | null;
+  last_spo2_at: string | null;
+  last_sleep_hours: number | null;
+  sleep_sessions_total: number;
+  total_data_points: number;
+  total_workouts: number;
+}
+
 export interface Provider {
   provider: string;
   name: string;

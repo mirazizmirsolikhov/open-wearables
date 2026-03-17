@@ -2,6 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { dashboardService } from '../../lib/api';
 import { queryKeys } from '../../lib/query/keys';
 
+export function useUsersMetrics() {
+  return useQuery({
+    queryKey: [...queryKeys.dashboard.stats(), 'users-metrics'],
+    queryFn: () => dashboardService.getUsersMetrics(),
+    staleTime: 60 * 1000, // 1 minute
+    refetchInterval: 3 * 60 * 1000, // auto-refetch every 3 minutes
+  });
+}
+
 export function useDashboardStats() {
   return useQuery({
     queryKey: queryKeys.dashboard.stats(),

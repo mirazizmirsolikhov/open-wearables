@@ -51,6 +51,7 @@ export const API_ENDPOINTS = {
   // Dashboard endpoints (may not exist in backend yet)
   dashboardStats: '/api/v1/dashboard/stats',
   dashboardCharts: '/api/v1/dashboard/charts',
+  dashboardUsersMetrics: '/api/v1/dashboard/users-metrics',
 
   // Automations endpoints (may not exist in backend yet)
   automations: '/api/v1/automations',
