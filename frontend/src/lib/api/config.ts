@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
   // Auth endpoints
   login: '/api/v1/auth/login',
   logout: '/api/v1/auth/logout',
+  tokenRefresh: '/api/v1/token/refresh',
   register: '/api/v1/auth/register',
   me: '/api/v1/auth/me',
   forgotPassword: '/api/v1/auth/forgot-password',

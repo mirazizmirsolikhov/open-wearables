@@ -1,6 +1,12 @@
-import { API_CONFIG } from './config';
+import { API_CONFIG, API_ENDPOINTS } from './config';
 import { ApiError } from '../errors/api-error';
-import { getToken, clearSession } from '../auth/session';
+import {
+  getToken,
+  getRefreshToken,
+  getDeveloperId,
+  setSession,
+  clearSession,
+} from '../auth/session';
 import { ROUTES } from '../constants/routes';
 
 interface RequestOptions extends RequestInit {
@@ -50,6 +56,65 @@ async function fetchWithRetry(
   }
 }
 
+// Mutex to prevent concurrent refresh attempts
+let refreshPromise: Promise<boolean> | null = null;
+
+async function tryRefreshToken(): Promise<boolean> {
+  // If a refresh is already in progress, wait for it
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) {
+    return false;
+  }
+
+  refreshPromise = (async () => {
+    try {
+      const response = await fetch(
+        `${API_CONFIG.baseUrl}${API_ENDPOINTS.tokenRefresh}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        }
+      );
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+      const developerId = getDeveloperId();
+      if (developerId && data.access_token) {
+        setSession(
+          data.access_token,
+          developerId,
+          data.expires_in,
+          data.refresh_token
+        );
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
+function handleUnauthorized(): never {
+  clearSession();
+  if (typeof window !== 'undefined') {
+    window.location.href = ROUTES.login;
+  }
+  throw ApiError.fromResponse(new Response(null, { status: 401 }));
+}
+
 export const apiClient = {
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     let url = `${API_CONFIG.baseUrl}${endpoint}`;
@@ -85,17 +150,28 @@ export const apiClient = {
     const { params: _params, ...fetchOptions } = options;
 
     try {
-      const response = await fetchWithRetry(url, {
+      let response = await fetchWithRetry(url, {
         ...fetchOptions,
         headers,
       });
 
+      // On 401, try to refresh the token and retry the request once
       if (response.status === 401) {
-        clearSession();
-        if (typeof window !== 'undefined') {
-          window.location.href = ROUTES.login;
+        const refreshed = await tryRefreshToken();
+        if (refreshed) {
+          const newToken = getToken();
+          if (newToken) {
+            headers['Authorization'] = `Bearer ${newToken}`;
+          }
+          response = await fetchWithRetry(url, {
+            ...fetchOptions,
+            headers,
+          });
         }
-        throw ApiError.fromResponse(response);
+
+        if (response.status === 401) {
+          handleUnauthorized();
+        }
       }
 
       let data: unknown;
@@ -153,12 +229,33 @@ export const apiClient = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetchWithRetry(url, {
+    let response = await fetchWithRetry(url, {
       ...options,
       method: 'POST',
       headers,
       body: new URLSearchParams(body).toString(),
     });
+
+    // On 401, try to refresh the token and retry
+    if (response.status === 401) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        const newToken = getToken();
+        if (newToken) {
+          headers['Authorization'] = `Bearer ${newToken}`;
+        }
+        response = await fetchWithRetry(url, {
+          ...options,
+          method: 'POST',
+          headers,
+          body: new URLSearchParams(body).toString(),
+        });
+      }
+
+      if (response.status === 401) {
+        handleUnauthorized();
+      }
+    }
 
     let data: unknown;
     const contentType = response.headers.get('content-type');
@@ -222,19 +319,32 @@ export const apiClient = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetchWithRetry(url, {
+    let response = await fetchWithRetry(url, {
       ...options,
       method: 'POST',
       headers,
       body: formData,
     });
 
+    // On 401, try to refresh the token and retry
     if (response.status === 401) {
-      clearSession();
-      if (typeof window !== 'undefined') {
-        window.location.href = ROUTES.login;
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        const newToken = getToken();
+        if (newToken) {
+          headers['Authorization'] = `Bearer ${newToken}`;
+        }
+        response = await fetchWithRetry(url, {
+          ...options,
+          method: 'POST',
+          headers,
+          body: formData,
+        });
       }
-      throw ApiError.fromResponse(response);
+
+      if (response.status === 401) {
+        handleUnauthorized();
+      }
     }
 
     let data: unknown;

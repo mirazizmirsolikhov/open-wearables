@@ -94,6 +94,8 @@ export interface AuthResponse {
   access_token: string;
   token_type: string;
   developer_id: string;
+  refresh_token?: string;
+  expires_in?: number; // seconds
 }
 
 export interface InvitationCode {

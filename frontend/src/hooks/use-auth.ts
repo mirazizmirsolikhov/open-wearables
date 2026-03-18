@@ -19,7 +19,12 @@ export function useAuth() {
   const loginMutation = useMutation({
     mutationFn: (credentials: LoginRequest) => authService.login(credentials),
     onSuccess: (data) => {
-      setSession(data.access_token, data.developer_id);
+      setSession(
+        data.access_token,
+        data.developer_id,
+        data.expires_in,
+        data.refresh_token
+      );
       toast.success('Logged in successfully');
       navigate({ to: DEFAULT_REDIRECTS.authenticated });
     },
@@ -59,7 +64,12 @@ export function useAuth() {
       return loginResponse;
     },
     onSuccess: (data) => {
-      setSession(data.access_token, data.developer_id);
+      setSession(
+        data.access_token,
+        data.developer_id,
+        data.expires_in,
+        data.refresh_token
+      );
       toast.success('Account created successfully');
       navigate({ to: DEFAULT_REDIRECTS.authenticated });
     },
