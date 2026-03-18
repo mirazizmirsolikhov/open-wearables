@@ -25,7 +25,7 @@ export function SimpleSidebar() {
   const { logout, isLoggingOut } = useAuth();
   const { t, i18n } = useTranslation();
   const [collapsed, setCollapsed] = useState(
-    () => localStorage.getItem('sidebar-collapsed') === 'true'
+    () => typeof window !== 'undefined' && localStorage.getItem('sidebar-collapsed') === 'true'
   );
 
   const toggle = () => {

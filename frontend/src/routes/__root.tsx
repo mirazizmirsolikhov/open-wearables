@@ -11,6 +11,11 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query/client';
 import { Toaster } from '@/components/ui/sonner';
 
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/inter/800.css';
 import '@/lib/i18n';
 import appCss from '../styles.css?url';
 
@@ -34,20 +39,6 @@ export const Route = createRootRoute({
       },
     ],
     links: [
-      // Google Fonts - Inter
-      {
-        rel: 'preconnect',
-        href: 'https://fonts.googleapis.com',
-      },
-      {
-        rel: 'preconnect',
-        href: 'https://fonts.gstatic.com',
-        crossOrigin: 'anonymous',
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
-      },
       {
         rel: 'stylesheet',
         href: appCss,
