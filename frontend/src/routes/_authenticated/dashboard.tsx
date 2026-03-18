@@ -149,14 +149,14 @@ function UserCard({ u, t }: { u: UserMetricsSummary; t: (key: string) => string 
             value={u.last_sleep_hours ?? null}
             unit={t('metrics.hrs')}
             color="purple"
-            subtitle={`${u.sleep_sessions_total} ${t('metrics.sessionsTotal')}`}
+            subtitle={t('metrics.today')}
           />
           <MetricCard
             icon="💪"
             label={t('metrics.workouts')}
             value={u.total_workouts}
             color="amber"
-            subtitle={t('metrics.total')}
+            subtitle={t('metrics.today')}
           />
           <MetricCard
             icon="📊"
@@ -173,7 +173,7 @@ function UserCard({ u, t }: { u: UserMetricsSummary; t: (key: string) => string 
               ? `${(u.total_data_points / 1000).toFixed(1)}k`
               : u.total_data_points}
             color="blue"
-            subtitle={t('metrics.total')}
+            subtitle={t('metrics.today')}
           />
         </div>
       ) : (

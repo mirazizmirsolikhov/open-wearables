@@ -53,20 +53,18 @@ class UserMetricsSummary(BaseModel):
     total_workouts: int = 0
 
 
-def _get_latest(db, source_ids, type_code):
-    """Get latest data point for a series type."""
+def _get_latest(db, source_ids, type_code, since=None):
+    """Get latest data point for a series type, optionally filtered by date."""
     st = db.query(SeriesTypeDefinition).filter(SeriesTypeDefinition.code == type_code).first()
     if not st:
         return None
-    return (
-        db.query(DataPointSeries)
-        .filter(
-            DataPointSeries.data_source_id.in_(source_ids),
-            DataPointSeries.series_type_definition_id == st.id,
-        )
-        .order_by(DataPointSeries.recorded_at.desc())
-        .first()
+    q = db.query(DataPointSeries).filter(
+        DataPointSeries.data_source_id.in_(source_ids),
+        DataPointSeries.series_type_definition_id == st.id,
     )
+    if since:
+        q = q.filter(DataPointSeries.recorded_at >= since)
+    return q.order_by(DataPointSeries.recorded_at.desc()).first()
 
 
 def _get_today_agg(db, source_ids, type_code, today_start, agg_func):
@@ -117,9 +115,13 @@ async def get_users_with_metrics(db: DbSession, _developer: DeveloperDep):
         }
 
         if source_ids:
+            # All metrics filtered to today only
             m["total_data_points"] = (
                 db.query(func.count(DataPointSeries.id))
-                .filter(DataPointSeries.data_source_id.in_(source_ids))
+                .filter(
+                    DataPointSeries.data_source_id.in_(source_ids),
+                    DataPointSeries.recorded_at >= today_start,
+                )
                 .scalar() or 0
             )
 
@@ -130,8 +132,8 @@ async def get_users_with_metrics(db: DbSession, _developer: DeveloperDep):
             # Calories today
             m["today_calories"] = _get_today_agg(db, source_ids, "energy", today_start, func.sum)
 
-            # Heart rate - last + today stats
-            last_hr = _get_latest(db, source_ids, "heart_rate")
+            # Heart rate - last today + today stats
+            last_hr = _get_latest(db, source_ids, "heart_rate", since=today_start)
             if last_hr:
                 m["last_heart_rate"] = float(last_hr.value)
                 m["last_heart_rate_at"] = last_hr.recorded_at
@@ -141,18 +143,19 @@ async def get_users_with_metrics(db: DbSession, _developer: DeveloperDep):
             if m["today_hr_avg"]:
                 m["today_hr_avg"] = round(m["today_hr_avg"], 1)
 
-            # SpO2
-            last_spo2 = _get_latest(db, source_ids, "oxygen_saturation")
+            # SpO2 - today only
+            last_spo2 = _get_latest(db, source_ids, "oxygen_saturation", since=today_start)
             if last_spo2:
                 m["last_spo2"] = float(last_spo2.value)
                 m["last_spo2_at"] = last_spo2.recorded_at
 
-            # Sleep - last session duration + total count
+            # Sleep - today only (sessions that ended today)
             last_sleep = (
                 db.query(EventRecord)
                 .filter(
                     EventRecord.data_source_id.in_(source_ids),
                     EventRecord.category == "sleep",
+                    EventRecord.end_datetime >= today_start,
                 )
                 .order_by(EventRecord.start_datetime.desc())
                 .first()
@@ -165,16 +168,18 @@ async def get_users_with_metrics(db: DbSession, _developer: DeveloperDep):
                 .filter(
                     EventRecord.data_source_id.in_(source_ids),
                     EventRecord.category == "sleep",
+                    EventRecord.end_datetime >= today_start,
                 )
                 .scalar() or 0
             )
 
-            # Workouts total
+            # Workouts today
             m["total_workouts"] = (
                 db.query(func.count(EventRecord.id))
                 .filter(
                     EventRecord.data_source_id.in_(source_ids),
                     EventRecord.category == "workout",
+                    EventRecord.start_datetime >= today_start,
                 )
                 .scalar() or 0
             )
