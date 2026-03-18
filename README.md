@@ -1,221 +1,353 @@
-
-# Open Wearables
+# Open Wearables — Система мониторинга здоровья сотрудников
 
 <div align="left">
 
+[![Built with: FastAPI + React + Tanstack](https://img.shields.io/badge/Built%20with-FastAPI%20%2B%20React%20%2B%20Tanstack-green.svg)](#архитектура)
+[![Android SDK](https://img.shields.io/badge/Android%20SDK-Kotlin-3DDC84?logo=android&logoColor=white)](#android-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-blue.svg)](https://github.com/the-momentum/open-wearables/issues)
-![Built with: FastAPI + React + Tanstack](https://img.shields.io/badge/Built%20with-FastAPI%20%2B%20React%20%2B%20Tanstack-green.svg)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-5865F2?logo=discord&logoColor=white)](https://discord.gg/qrcfFnNE6H)
 
 </div>
 
 ---
 
-**Documentation**: https://docs.openwearables.io
+Платформа для централизованного сбора и мониторинга данных с умных часов сотрудников. Администратор видит метрики здоровья каждого сотрудника в реальном времени через веб-панель.
+
+Система построена на базе open-source проекта [Open Wearables](https://github.com/the-momentum/open-wearables) и адаптирована для корпоративного использования — мониторинга состояния здоровья персонала.
+
+## Обзор системы
+
+Проект состоит из трёх компонентов:
+
+| Компонент                                     | Описание                                | Технологии                                |
+| --------------------------------------------- | --------------------------------------- | ----------------------------------------- |
+| **[Веб-платформа](#веб-платформа)**           | Серверная часть + панель администратора | FastAPI, React, PostgreSQL, Redis, Celery |
+| **[Android SDK](#android-sdk)**               | Библиотека для сбора данных с часов     | Kotlin, Health Connect, Samsung Health    |
+| **[Android-приложение](#android-приложение)** | Мобильное приложение для сотрудников    | Kotlin, Material Design 3                 |
+
+### Как это работает
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌───────────────────────────┐
+│   Умные часы    │────▶│  Android-       │────▶│   Веб-платформа           │
+│   сотрудника    │     │  приложение     │     │                           │
+│                 │     │                 │     │  ┌─────────────────────┐  │
+│  Samsung Galaxy │     │  Считывает      │     │  │  FastAPI Backend    │  │
+│  Watch / Google │     │  данные через   │     │  │  PostgreSQL + Redis │  │
+│  Pixel Watch и  │     │  Health Connect │     │  │  Celery Workers     │  │
+│  другие         │     │  или Samsung    │     │  └─────────────────────┘  │
+│                 │     │  Health SDK     │     │                           │
+│                 │     │                 │     │  ┌─────────────────────┐  │
+│                 │     │  Синхронизирует │     │  │  React Dashboard    │  │
+│                 │     │  на сервер      │     │  │  Панель админа      │  │
+│                 │     │  автоматически  │     │  │  Данные сотрудников │  │
+│                 │     │                 │     │  └─────────────────────┘  │
+└─────────────────┘     └─────────────────┘     └───────────────────────────┘
+```
+
+1. Сотрудник носит умные часы (Samsung Galaxy Watch, Google Pixel Watch и др.)
+2. Android-приложение на телефоне сотрудника считывает данные через Health Connect / Samsung Health
+3. Данные автоматически синхронизируются на сервер (каждые 3 минуты)
+4. Администратор видит все метрики в веб-панели
 
 ---
 
-Open-source platform that unifies wearable device data from multiple providers and enables AI-powered health insights through natural language automations. Build health applications faster with a single API, embeddable widgets, and intelligent webhook notifications.
+## Собираемые метрики
 
-## What It Does
+### Кардио и жизненные показатели
+- Пульс (ЧСС) и пульс в покое
+- Вариабельность сердечного ритма (HRV SDNN)
+- Насыщение крови кислородом (SpO2)
+- Артериальное давление (систолическое / диастолическое)
+- Частота дыхания
+- Температура тела
 
-Open Wearables provides a unified API and developer portal to connect and sync data from multiple wearable devices and fitness platforms. Instead of implementing separate integrations for each provider (e.g., Garmin, Whoop, Apple Health), you can use a single platform to access normalized health data and build intelligent health insights through AI-powered automations.
+### Активность и движение
+- Шаги
+- Пройденная дистанция (ходьба/бег, велосипед)
+- Пройденные этажи
+- Активные калории и базальный метаболизм
+- VO2 Max
+- Тренировки (тип, длительность, ЧСС, калории, дистанция)
 
-<div align="center">
-<img width="597" height="449" alt="image" src="https://github.com/user-attachments/assets/b626405d-99a3-4ff7-b044-442483a3edea" />
-</div>
+### Тело и восстановление
+- Вес, рост, ИМТ
+- Процент жира и мышечная масса
+- Сон (общая длительность, фазы: глубокий, REM, лёгкий, бодрствование)
+- Уровень глюкозы в крови
 
-> [!IMPORTANT]
-> **For Individuals**: This platform isn't just for developers - individuals can self-host it to take control of their own wearable data. Connect your devices, explore your health metrics through the unified API, and stay tuned for upcoming features like the AI Health Assistant and personal health insights automations. Best of all, your data stays on your own infrastructure, giving you complete privacy and control.
-
-## Why Use It
-
-**For Developers building health apps:**
-- 🔌 Integrate multiple wearable providers through one API instead of maintaining separate implementations
-- 📊 Access normalized health data across different devices (heart rate, sleep, activity, steps, etc.)
-- 🏠 Self-hosted solution - deploy on your own infrastructure with full data control
-- 🚀 No third-party dependencies for core functionality - run it locally with `docker compose up`
-- 🤖 Build AI-powered health insights and automations using natural language (coming soon)
-- 🧩 Embeddable widgets for easy integration into your applications (coming soon)
-
-**The Problem It Solves:**
-
-Building a health app that supports multiple wearables typically requires:
-- Significant development effort per provider (Garmin, Whoop, Apple Health, etc.) to implement OAuth flows, data mapping, and sync logic
-- Managing different OAuth flows and APIs for each service
-- Handling various data formats and units
-- Maintaining multiple SDKs and dealing with API changes
-
-Open Wearables handles this complexity so you can focus on building your product 🚀
-
-## Use Cases
-
-- 🏃 **Fitness Coaching Apps**: Connect user wearables to provide personalized training recommendations. Running coaches can create users, share connection links via WhatsApp, and test AI insights capabilities
-- 🏥 **Healthcare Platforms**: Aggregate patient health data from various devices and set up automations for health alerts
-- 💪 **Wellness Applications**: Track and analyze user activity across different wearables with AI-powered insights
-- 🔬 **Research Projects**: Collect standardized health data from multiple sources
-- 🧪 **Product Pilots**: Non-technical product owners can test platform functionality by sharing connection links with users without needing their own app
-- 👤 **Personal Use**: Individuals can self-host the platform to connect their own wearables, chat with their health data using the AI Health Assistant, and set up personal health insights - all with complete data privacy and control
-
-## Getting Started
-
-Get Open Wearables up and running in minutes.
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/the-momentum/open-wearables.git
-   cd open-wearables
-   ```
-
-2. **Configure environment variables:**
-   
-   **Backend configuration:**
-   ```bash
-   cp ./backend/config/.env.example ./backend/config/.env
-   ```
-   
-   **Frontend configuration:**
-   ```bash
-   cp ./frontend/.env.example ./frontend/.env
-   ```
-
-3. **Start the application**
-   
-   **Using Docker (Recommended):**
-   
-   The easiest way to get started is with Docker Compose:
-   ```bash
-   docker compose up -d
-   ```
-   
-   For local development setup without Docker take a look at [docs](https://docs.openwearables.io/quickstart#local-development-setup)
-
-4. **Log in to the developer portal:**
-
-   An admin account is automatically created on startup using the `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables (defaults: `admin@admin.com` / `your-secure-password`).
-
-   Open http://localhost:3000 to access the developer portal and create API keys.
-
-5. **Seed sample data** (optional):
-   If you want test users and sample activity data:
-   ```bash
-   make seed
-   ```
-
-   This will create:
-   - Test users
-   - Sample activity data for test users
-
-
-6. **View API documentation:**
-
-   Open http://localhost:8000/docs in your browser to explore the interactive Swagger UI.
-
-## Core Features
-
-### Developer Portal Dashboard
-Web-based dashboard for managing your integration:
-- 📈 **General Statistics**: View number of users and data points at a glance
-- 👥 **User Management**: Add users via the portal or through the API
-- 📋 **User Details**: View connected data sources, integration status, and user metrics with visualizations
-- 🔑 **API Key Management**: Generate and manage credentials in the Credentials tab
-
-### Health Insights & Automations (coming soon)
-The platform's most powerful feature - define intelligent health insights using natural language:
-- 💬 **Natural Language Conditions**: Describe when notifications should be triggered in plain English
-- 🔔 **Webhook Notifications**: Configure your backend endpoint to receive real-time health insights
-- 🧪 **Test Automation**: Run dry runs on historical data to see how automations work in practice
-- 👤 **Human-in-the-Loop**: Mark incorrect AI interpretations during testing to continuously improve the system
-- ✨ **Improve Description**: AI-powered suggestions to refine your automation descriptions
-- 📜 **Automation Logs**: Review past automation triggers and provide feedback
-
-### AI Health Assistant (coming soon)
-- 💬 Interactive chat interface for debugging and exploring user data
-- 🧩 Embeddable widget that can be integrated into any app with just a few lines of code
-- 🔄 Customizable AI models (swap models to match your needs)
-- 🔍 Natural language queries about user health metrics
-
-### Unified API
-Access health data through a consistent REST API regardless of the source device.
-
-### Provider Support
-- ☁️ **Cloud-based**: Garmin, Suunto, Polar (more coming soon!)
-- 📱 **SDK-based**: Apple HealthKit, Samsung Health, Google Health Connect
-
-### OAuth Flow Management
-Simplified connection process for end users:
-1. Generate a connection link for your user (or use the SDK widget)
-2. User authenticates with their wearable provider
-3. Data automatically syncs to your platform
-4. Access via unified API
-
-### Mobile Sync SDKs
-Native SDKs for push-based health data sync from on-device health stores:
-- **[iOS SDK](https://github.com/the-momentum/open_wearables_ios_sdk)** (Swift) - Apple HealthKit
-- **[Android SDK](https://github.com/the-momentum/open_wearables_android_sdk)** (Kotlin) - Samsung Health & Google Health Connect
-- **[Flutter SDK](https://github.com/the-momentum/open_wearables_health_sdk)** (Dart) - Cross-platform wrapper around native SDKs
-
-### Widgets (coming soon)
-- 🔌 **Connection Widget**: Allow users to connect their wearables directly from your app
-- 🤖 **AI Health Assistant Widget**: Embed the AI chat interface for user health queries
-
-## Architecture
-
-Built with:
-- 🐍 **Backend**: FastAPI (Python)
-- ⚛️ **Frontend**: React + TanStack Router + TypeScript (Vite)
-- 🗄️ **Database**: PostgreSQL + Redis
-- ⚙️ **Task Queue**: Celery (background jobs for data syncing and processing)
-- 🔐 **Authentication**: Self-contained (no external auth services required)
-- 📡 **API Style**: RESTful with OpenAPI/Swagger documentation
-
-The platform is designed for self-hosting, meaning each deployment serves a single organization. No multi-tenancy complexity.
-
-## Development Roadmap
-
-**Available**:
-- Developer portal
-- User management (via API and developer portal)
-- OAuth flow for Garmin, Polar, and Suunto
-- Workout data sync and API access for Garmin, Polar, and Suunto
-- Mobile Sync SDKs (iOS, Android, Flutter)
-
-**In Development**:
-- Core health data endpoints
-- Health Insights automations
-- AI Health Assistant
-- Enhanced widget integration
-
-## Join the Discord
-
-Join our Discord community to connect with other developers, get help, share ideas, and stay updated on the latest developments:
-
-[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-5865F2?logo=discord&logoColor=white)](https://discord.gg/qrcfFnNE6H)
-
-## Contributing
-
-Contributions are welcome! This project aims to be a community-driven solution for wearable data integration.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
-- 🛠️ Setting up the development environment
-- 📝 Code style and testing requirements
-- 🔀 Pull request process
-
-## License
-
-[MIT License](LICENSE) - Use it freely in commercial and open-source projects.
-
-## Community
-
-- 💬 [GitHub Discussions](https://github.com/the-momentum/open-wearables/discussions) - Questions and ideas
+### Гидратация
+- Потребление воды
 
 ---
 
-**Note**: This is an early-stage project under active development. APIs may change before version 1.0. We recommend pinning to specific versions in production and following the changelog for updates.
+## Веб-платформа
+
+Основной серверный компонент системы — бэкенд на FastAPI + панель управления на React.
+
+### Технологический стек
+
+**Backend:**
+- Python 3.13+ / FastAPI
+- PostgreSQL 18 — основная БД
+- Redis 8 — кэш и очередь задач
+- Celery — фоновая синхронизация данных
+- Alembic — миграции БД
+- JWT-аутентификация (HS256)
+- Шифрование на уровне полей (Fernet / AES)
+
+**Frontend:**
+- React 19 / TypeScript
+- TanStack Router + TanStack Query
+- Tailwind CSS + shadcn/ui
+- Recharts — визуализация данных
+- i18next — интернационализация (русский по умолчанию, английский)
+- Vite — сборка
+
+### Возможности панели администратора
+
+- **Дашборд** — общая статистика: количество пользователей, точек данных, подключённых устройств
+- **Управление сотрудниками** — добавление, просмотр, редактирование профилей
+- **Детали сотрудника** — подключённые устройства, история активности, графики метрик
+- **Настройки провайдеров** — OAuth-интеграции с Garmin, Polar, Suunto, Whoop, Strava
+- **API-ключи** — генерация и управление ключами для SDK
+- **Приглашения** — создание кодов приглашения для подключения сотрудников
+
+### Развёртывание
+
+```bash
+# 1. Клонировать репозиторий
+git clone <repo-url>
+cd open-wearables
+
+# 2. Настроить переменные окружения
+cp ./backend/config/.env.example ./backend/config/.env
+cp ./frontend/.env.example ./frontend/.env
+
+# 3. Запустить через Docker Compose
+docker compose up -d
+```
+
+Сервисы:
+| Сервис      | Порт | Описание              |
+| ----------- | ---- | --------------------- |
+| Frontend    | 3000 | Панель администратора |
+| Backend API | 8000 | REST API + Swagger UI |
+| PostgreSQL  | 5432 | База данных           |
+| Redis       | 6379 | Кэш и очередь         |
+| Flower      | 5555 | Мониторинг Celery     |
+
+Учётные данные по умолчанию: `admin@admin.com` / `your-secure-password` (настраиваются в `.env`).
+
+### Команды
+
+```bash
+make build     # Собрать Docker-образы
+make run       # Запустить в фоне
+make stop      # Остановить
+make down      # Остановить и удалить контейнеры
+make test      # Запустить тесты
+make migrate   # Применить миграции БД
+make seed      # Заполнить тестовыми данными
+```
+
+### API
+
+Swagger UI доступен по адресу `http://localhost:8000/docs`.
+
+Основные эндпоинты:
+
+```
+POST   /api/v1/auth/login                     # Авторизация
+GET    /api/v1/users                          # Список сотрудников
+GET    /api/v1/users/{id}                     # Профиль сотрудника
+GET    /api/v1/users/{id}/summaries/activity  # Сводка активности
+GET    /api/v1/users/{id}/summaries/sleep     # Сводка сна
+GET    /api/v1/users/{id}/summaries/body      # Данные тела
+GET    /api/v1/users/{id}/events/workouts     # Тренировки
+GET    /api/v1/users/{id}/events/sleep        # Сессии сна
+GET    /api/v1/dashboard/stats                # Общая статистика
+POST   /api/v1/sdk/users/{id}/sync            # Приём данных от SDK
+```
 
 ---
 
-The backend part of this project was generated from the [Python AI Kit](https://github.com/the-momentum/python-ai-kit).
+## Android SDK
 
-Built with ❤️ by [Momentum](https://themomentum.ai/)
+Библиотека для Android-приложений, обеспечивающая единый интерфейс сбора данных с умных часов.
+
+- **Пакет:** `com.openwearables.health:sdk:0.4.1`
+- **Язык:** Kotlin 2.1.0
+- **Min SDK:** 29 (Android 10)
+
+### Поддерживаемые источники данных
+
+| Провайдер                 | Описание                                                           |
+| ------------------------- | ------------------------------------------------------------------ |
+| **Samsung Health**        | Прямое подключение к Samsung Galaxy Watch через Samsung Health SDK |
+| **Google Health Connect** | Универсальный коннектор для Pixel Watch, Fitbit и других устройств |
+
+### Ключевые возможности
+
+- Автоопределение доступного провайдера (Samsung Health в приоритете)
+- Фоновая синхронизация через WorkManager (интервал от 1 минуты, по умолчанию 3)
+- Инкрементальная синхронизация — отправляются только новые данные
+- Пакетная отправка (по 2000 записей за раз)
+- Автоматическое обновление токенов при 401
+- Шифрованное хранение учётных данных (AES-256-GCM)
+- Возобновляемые синхронизации — при обрыве продолжает с места остановки
+
+### Использование в приложении
+
+```kotlin
+// Инициализация
+val sdk = OpenWearablesHealthSDK.initialize(context)
+
+// Подключение к серверу
+sdk.configure("https://your-server.com")
+sdk.signIn(userId = "user-uuid", accessToken = "token", refreshToken = "refresh")
+
+// Запрос разрешений на данные
+sdk.requestAuthorization(listOf("steps", "heartRate", "sleep", "workout"))
+
+// Запуск фоновой синхронизации
+sdk.startBackgroundSync()
+```
+
+---
+
+## Android-приложение
+
+Мобильное приложение для сотрудников — устанавливается на телефон, подключается к умным часам и автоматически отправляет данные на сервер.
+
+- **Пакет:** `com.openwearables.app`
+- **Язык:** Kotlin 2.1.0
+- **Min SDK:** 29 (Android 10), Target SDK: 36
+
+### Функциональность
+
+1. **Подключение к серверу** — ввод URL сервера и кода приглашения
+2. **Автоопределение провайдера** — автоматическое обнаружение Samsung Health или Health Connect
+3. **Запрос разрешений** — получение доступа к 21 типу медицинских данных
+4. **Синхронизация** — ручная и автоматическая фоновая отправка данных
+5. **Логирование** — встроенный лог с прогрессом синхронизации в реальном времени
+6. **Автовосстановление сессии** — при перезапуске приложения подключение восстанавливается
+
+### Интерфейс
+
+Одноэкранное приложение с 4 секциями:
+
+| Секция             | Описание                                                      |
+| ------------------ | ------------------------------------------------------------- |
+| Статус подключения | Цветовой индикатор: красный / оранжевый / зелёный             |
+| Настройка сервера  | Поля URL и кода приглашения, кнопки подключения/отключения    |
+| Провайдер данных   | Определённый провайдер, кнопка запроса разрешений             |
+| Синхронизация      | Прогресс, кнопки «Синхронизировать» и «Фоновая синхронизация» |
+
+### Процесс подключения сотрудника
+
+```
+Админ создаёт приглашение в веб-панели
+        ↓
+Сотрудник вводит URL сервера и код приглашения в приложении
+        ↓
+Приложение получает токены доступа
+        ↓
+Автоопределение провайдера (Samsung Health / Health Connect)
+        ↓
+Сотрудник даёт разрешения на чтение данных здоровья
+        ↓
+Запускается автоматическая фоновая синхронизация
+        ↓
+Админ видит данные сотрудника в панели
+```
+
+---
+
+## Структура репозиториев
+
+```
+open-wearables/                    # Веб-платформа (этот репозиторий)
+├── backend/                       # FastAPI бэкенд
+│   ├── app/
+│   │   ├── api/v1/                # REST API эндпоинты
+│   │   ├── models/                # SQLAlchemy модели
+│   │   ├── repositories/          # Слой доступа к данным
+│   │   ├── services/              # Бизнес-логика
+│   │   └── providers/             # Интеграции с провайдерами
+│   ├── config/                    # Конфигурация и переменные окружения
+│   └── migrations/                # Alembic миграции
+├── frontend/                      # React фронтенд
+│   ├── src/
+│   │   ├── components/            # UI компоненты (shadcn/ui)
+│   │   ├── routes/                # Страницы (TanStack Router)
+│   │   ├── lib/                   # Утилиты, API клиент, i18n
+│   │   └── hooks/                 # React хуки
+│   └── public/                    # Статические ресурсы
+├── docker-compose.yml             # Docker конфигурация
+└── Makefile                       # Команды разработки
+
+open-wearables-sdk/                # Android SDK
+└── sdk/src/main/java/.../sdk/
+    ├── OpenWearablesHealthSDK.kt  # Главный класс SDK
+    ├── HealthConnectManager.kt    # Google Health Connect
+    ├── SamsungHealthManager.kt    # Samsung Health
+    ├── SyncManager.kt             # Оркестрация синхронизации
+    ├── SecureStorage.kt           # Шифрованное хранилище
+    └── UnifiedPayload.kt          # Модели данных
+
+open-wearables-android-app/        # Android приложение
+└── app/src/main/
+    ├── java/.../MainActivity.kt   # Основной экран
+    ├── res/layout/                # UI разметка
+    └── AndroidManifest.xml        # Разрешения и конфигурация
+```
+
+---
+
+## Архитектура
+
+```
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│  Samsung     │   │  Google      │   │  Garmin /    │
+│  Galaxy Watch│   │  Pixel Watch │   │  Polar и др. │
+└──────┬───────┘   └──────┬───────┘   └──────┬───────┘
+       │                  │                  │
+       ▼                  ▼                  │
+┌──────────────────────────────┐             │
+│  Android SDK                 │             │
+│  (Health Connect /           │             │
+│   Samsung Health)            │             │
+└──────────────┬───────────────┘             │
+               │ HTTP POST                   │ OAuth + Webhooks
+               ▼                             ▼
+┌──────────────────────────────────────────────────────┐
+│              FastAPI Backend                         │
+│  ┌──────────┐  ┌─────────┐  ┌─────────────────────┐  │
+│  │ REST API │  │ Celery  │  │ Provider Strategies │  │
+│  │          │  │ Workers │  │ (Garmin, Polar,     │  │
+│  └────┬─────┘  └────┬────┘  │  Suunto, Whoop)     │  │
+│       │             │       └─────────────────────┘  │
+│       ▼             ▼                                │
+│  ┌──────────┐  ┌──────────┐                          │
+│  │PostgreSQL│  │  Redis   │                          │
+│  │  (данные)│  │  (кэш)   │                          │
+│  └──────────┘  └──────────┘                          │
+└──────────────────────────────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│    React Dashboard          │
+│    Панель администратора    │
+│    (Tailwind + shadcn/ui)   │
+└─────────────────────────────┘
+```
+
+---
+
+## Лицензия
+
+[MIT License](LICENSE)
+
+---
+
+Основано на [Open Wearables](https://github.com/the-momentum/open-wearables) от [Momentum](https://themomentum.ai/).
