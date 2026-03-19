@@ -13,9 +13,7 @@ FROM python:3.13-slim AS builder
     COPY uv.lock pyproject.toml ./
     COPY . .
 
-    ENV VIRTUAL_ENV=/opt/venv
-    RUN uv venv $VIRTUAL_ENV
-    ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+    ENV UV_PROJECT_ENVIRONMENT=/opt/venv
     RUN uv sync --locked --no-dev
 
 FROM python:3.13-slim
