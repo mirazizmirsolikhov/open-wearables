@@ -4,6 +4,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api import head_router
@@ -45,6 +46,11 @@ if static_dir.exists():
 @api.get("/")
 async def root() -> dict[str, str]:
     return {"message": "Server is running!"}
+
+
+@api.get("/ble")
+async def ble_page() -> FileResponse:
+    return FileResponse(static_dir / "ble.html", media_type="text/html")
 
 
 @api.exception_handler(RequestValidationError)
